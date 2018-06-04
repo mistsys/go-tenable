@@ -19,6 +19,13 @@ func main() {
 
 	client.Debug = *debug
 
+	folders, err := client.FoldersList(context.Background())
+	if err != nil {
+		log.Println("Error getting folders", err)
+	}
+	fmt.Printf("%s", folders)
+	return
+
 	deets, err := client.ScanDetail(context.Background(), "29")
 	if err != nil {
 		log.Println("Error getting scans detail", err)

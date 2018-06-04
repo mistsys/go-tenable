@@ -136,3 +136,13 @@ func (t *TenableClient) ScanDetail(ctx context.Context, id string) (*ScanDetail,
 	err = t.doRequest(ctx, req, status)
 	return status, err
 }
+
+func (t *TenableClient) FoldersList(ctx context.Context) (*FoldersList, error) {
+	req, err := t.createRequest(http.MethodGet, "folders", nil)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to create request")
+	}
+	status := &FoldersList{}
+	err = t.doRequest(ctx, req, status)
+	return status, err
+}

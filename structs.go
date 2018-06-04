@@ -273,3 +273,7 @@ type ScanDetail struct {
 	} `json:"remediations"`
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
+
+type FoldersList struct {
+	Folders []Folder `json:"folders"`
+}
