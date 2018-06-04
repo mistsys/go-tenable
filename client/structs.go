@@ -1,4 +1,4 @@
-package tenable
+package client
 
 import (
 	"encoding/json"
