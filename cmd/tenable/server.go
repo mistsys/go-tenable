@@ -24,7 +24,7 @@ var serverStatusCmd = &cobra.Command{
 		client.Debug = debug
 		status, err := client.ServerStatus(context.Background())
 		if err != nil {
-			log.Println("Error getting server status. %s", err)
+			log.Printf("Error getting server status. %s", err)
 		}
 		fmt.Printf("%v", status)
 	},
