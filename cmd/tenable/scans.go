@@ -29,9 +29,9 @@ var scansListCmd = &cobra.Command{
 			for i := 0; i < len(args); i++ {
 				details, err := client.ScanDetail(context.Background(), args[i])
 				if err != nil {
-					log.Printf("Error getting scan details for %d, %s", args[i], err)
+					log.Printf("Error getting scan details for %q, %s", args[i], err)
 				}
-				fmt.Printf("%s", details)
+				fmt.Printf("%v", details)
 			}
 		} else {
 			// no IDs specified, just dump em all
@@ -39,7 +39,7 @@ var scansListCmd = &cobra.Command{
 			if err != nil {
 				log.Println("Error getting server scans list", err)
 			}
-			fmt.Printf("%q", lst)
+			fmt.Printf("%v", lst)
 		}
 	},
 }

@@ -218,7 +218,7 @@ type Remediation struct {
 	Value       string `json:"value"`
 	Remediation string `json:"remediation"`
 	Hosts       int    `json:"hosts"`
-	vulns       int    `json:"vulns"`
+	Vulns       int    `json:"vulns"`
 }
 
 type ScanDetail struct {
