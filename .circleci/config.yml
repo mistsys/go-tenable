@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run:
+          # to be replaced with vgo?
+          name: "Update all the dependencies"
+          command:
+            go get -u ./...
+      - run:
+          name: "junit report"
+          command:
+            go get github.com/jstemmer/go-junit-report
+      - run:
+          name: "github-release"
+          command:
+            go get github.com/mistsys/github-release
+      - run:
+          name: "run unit tests"
+          command: |
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            make test | tee ${TEST_RESULTS}/go-test.out
