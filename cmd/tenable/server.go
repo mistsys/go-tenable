@@ -15,7 +15,8 @@ var serverCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
-// fooCmd represents the foo command
+
+// serverStatus represents the "server/status" command
 var serverStatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Query server status.",
@@ -30,7 +31,22 @@ var serverStatusCmd = &cobra.Command{
 	},
 }
 
+var serverPropertiesCmd = &cobra.Command{
+	Use:   "properties",
+	Short: "Query server properties.",
+	Run: func(cmd *cobra.Command, args []string) {
+		client = tenableClient.NewClient(accessKey, secretKey)
+		client.Debug = debug
+		properties, err := client.ServerProperties(context.Background())
+		if err != nil {
+			log.Println("Error getting server properties.", err)
+		}
+		fmt.Printf("%v", properties)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(serverCmd)
 	serverCmd.AddCommand(serverStatusCmd)
+	serverCmd.AddCommand(serverPropertiesCmd)
 }
