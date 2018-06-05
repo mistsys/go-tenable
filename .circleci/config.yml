@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: /go/src/github.com/mistsys/go-tenable
     docker:
       - image: circleci/golang:1.10
     steps:
