@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+type ScansService service
+
 type Scan struct {
 	Control              bool        `json:"control"`
 	CreationDate         int         `json:"creation_date"`
@@ -90,23 +92,23 @@ type ScansList struct {
 	Timestamp int      `json:"timestamp"`
 }
 
-func (t *TenableClient) ScansList(ctx context.Context) (*ScansList, error) {
-	req, err := t.createRequest(http.MethodGet, "scans", nil)
+func (s *ScansService) List(ctx context.Context) (*ScansList, error) {
+	req, err := s.client.createRequest(http.MethodGet, "scans", nil)
 	if err != nil {
 		log.Printf("Failed to create request %s", err)
 		return nil, errors.Wrapf(err, "Failed to create request")
 	}
 	list := &ScansList{}
-	err = t.doRequest(ctx, req, list)
+	err = s.client.doRequest(ctx, req, list)
 	return list, err
 }
 
-func (t *TenableClient) ScanDetail(ctx context.Context, id string) (*ScanDetail, error) {
-	req, err := t.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
+func (s *ScansService) Detail(ctx context.Context, id string) (*ScanDetail, error) {
+	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &ScanDetail{}
-	err = t.doRequest(ctx, req, status)
+	err = s.client.doRequest(ctx, req, status)
 	return status, err
 }

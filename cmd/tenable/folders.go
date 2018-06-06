@@ -14,12 +14,11 @@ var foldersCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
-// fooCmd represents the foo command
 var foldersListCmd = &cobra.Command{
 	Use:   "list [ID...]",
 	Short: "List folders.",
 	Run: func(cmd *cobra.Command, args []string) {
-		lst, err := client.FoldersList(context.Background())
+		lst, err := client.Folders.List(context.Background())
 		if err != nil {
 			log.Println("Error getting folders list", err)
 		}

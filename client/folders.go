@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+type FoldersService service
+
 type FoldersList struct {
 	Folders []Folder `json:"folders"`
 }
@@ -20,12 +22,12 @@ type Folder struct {
 	UnreadCount int    `json:"unread_count"`
 }
 
-func (t *TenableClient) FoldersList(ctx context.Context) (*FoldersList, error) {
-	req, err := t.createRequest(http.MethodGet, "folders", nil)
+func (f *FoldersService) List(ctx context.Context) (*FoldersList, error) {
+	req, err := f.client.createRequest(http.MethodGet, "folders", nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &FoldersList{}
-	err = t.doRequest(ctx, req, status)
+	err = f.client.doRequest(ctx, req, status)
 	return status, err
 }

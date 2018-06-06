@@ -18,9 +18,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+const tenableAPI = "https://cloud.tenable.com"
+
 type TenableClient struct {
 	baseURL string
 	client  *http.Client
+	common  service
 	// AccessKey for service
 	accessKey string
 	secretKey string
@@ -28,15 +31,28 @@ type TenableClient struct {
 	Debug bool
 	//username to impersonate as
 	impersonate string
+
+	Scans   *ScansService
+	Folders *FoldersService
+	Server  *ServerService
+}
+
+type service struct {
+	client *TenableClient
 }
 
 func NewClient(accessKey string, secretKey string) *TenableClient {
-	return &TenableClient{
-		baseURL:   "https://cloud.tenable.com",
-		client:    http.DefaultClient,
+	c := &TenableClient{
+		baseURL:   tenableAPI,
 		accessKey: accessKey,
 		secretKey: secretKey,
+		client:    http.DefaultClient,
 	}
+	c.common.client = c
+	c.Scans = (*ScansService)(&c.common)
+	c.Folders = (*FoldersService)(&c.common)
+	c.Server = (*ServerService)(&c.common)
+	return c
 }
 
 func (t *TenableClient) createRequest(method string, relativeUrl string, data url.Values) (*http.Request, error) {

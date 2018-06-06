@@ -7,6 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+type ServerService service
+
 type ServerStatus struct {
 	Code   int    `json:"code"`
 	Status string `json:"status"`
@@ -82,22 +84,22 @@ type ServerProperties struct {
 	} `json:"update"`
 }
 
-func (t *TenableClient) ServerProperties(ctx context.Context) (*ServerProperties, error) {
-	req, err := t.createRequest(http.MethodGet, "server/properties", nil)
+func (s *ServerService) Properties(ctx context.Context) (*ServerProperties, error) {
+	req, err := s.client.createRequest(http.MethodGet, "server/properties", nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 	}
 	props := &ServerProperties{}
-	err = t.doRequest(ctx, req, props)
+	err = s.client.doRequest(ctx, req, props)
 	return props, err
 }
 
-func (t *TenableClient) ServerStatus(ctx context.Context) (*ServerStatus, error) {
-	req, err := t.createRequest(http.MethodGet, "server/status", nil)
+func (s *ServerService) Status(ctx context.Context) (*ServerStatus, error) {
+	req, err := s.client.createRequest(http.MethodGet, "server/status", nil)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &ServerStatus{}
-	err = t.doRequest(ctx, req, status)
+	err = s.client.doRequest(ctx, req, status)
 	return status, err
 }
