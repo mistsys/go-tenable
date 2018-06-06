@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	tenableClient "github.com/mistsys/go-tenable/client"
 	"github.com/spf13/cobra"
 )
 
@@ -20,8 +19,6 @@ var foldersListCmd = &cobra.Command{
 	Use:   "list [ID...]",
 	Short: "List folders.",
 	Run: func(cmd *cobra.Command, args []string) {
-		client = tenableClient.NewClient(accessKey, secretKey)
-		client.Debug = debug
 		lst, err := client.FoldersList(context.Background())
 		if err != nil {
 			log.Println("Error getting folders list", err)

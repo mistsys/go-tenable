@@ -18,6 +18,10 @@ var client *tenableClient.TenableClient
 var rootCmd = &cobra.Command{
 	Use:   "tenable COMMAND",
 	Short: "A CLI for the Tenable API",
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
+		client = tenableClient.NewClient(accessKey, secretKey)
+		client.Debug = debug
+	},
 }
 
 func init() {

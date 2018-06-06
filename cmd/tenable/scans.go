@@ -6,8 +6,6 @@ import (
 	"log"
 
 	"github.com/spf13/cobra"
-
-	tenableClient "github.com/mistsys/go-tenable/client"
 )
 
 var scansCmd = &cobra.Command{
@@ -21,9 +19,6 @@ var scansListCmd = &cobra.Command{
 	Use:   "list [ID...]",
 	Short: "List scans. Optionally specify specific scan IDs to view details.",
 	Run: func(cmd *cobra.Command, args []string) {
-		client = tenableClient.NewClient(accessKey, secretKey)
-		client.Debug = debug
-
 		if len(args) > 0 {
 			// at least one ID provided, try to get details for all provided IDs
 			for i := 0; i < len(args); i++ {
