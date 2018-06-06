@@ -9,10 +9,6 @@ import (
 
 type FoldersService service
 
-type FoldersList struct {
-	Folders []Folder `json:"folders"`
-}
-
 type Folder struct {
 	Custom      int    `json:"custom"`
 	DefaultTag  int    `json:"default_tag"`
@@ -20,6 +16,10 @@ type Folder struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	UnreadCount int    `json:"unread_count"`
+}
+
+type FoldersList struct {
+	Folders []Folder `json:"folders"`
 }
 
 func (f *FoldersService) List(ctx context.Context) (*FoldersList, error) {
