@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 
-	tenableClient "github.com/mistsys/go-tenable/client"
 	"github.com/spf13/cobra"
 )
 
@@ -15,15 +14,12 @@ var serverCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
-
 // serverStatus represents the "server/status" command
 var serverStatusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Query server status.",
 	Run: func(cmd *cobra.Command, args []string) {
-		client = tenableClient.NewClient(accessKey, secretKey)
-		client.Debug = debug
-		status, err := client.ServerStatus(context.Background())
+		status, err := client.Server.Status(context.Background())
 		if err != nil {
 			log.Printf("Error getting server status. %s", err)
 		}
@@ -35,9 +31,7 @@ var serverPropertiesCmd = &cobra.Command{
 	Use:   "properties",
 	Short: "Query server properties.",
 	Run: func(cmd *cobra.Command, args []string) {
-		client = tenableClient.NewClient(accessKey, secretKey)
-		client.Debug = debug
-		properties, err := client.ServerProperties(context.Background())
+		properties, err := client.Server.Properties(context.Background())
 		if err != nil {
 			log.Println("Error getting server properties.", err)
 		}

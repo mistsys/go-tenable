@@ -18,9 +18,12 @@ import (
 	"github.com/pkg/errors"
 )
 
+const tenableAPI = "https://cloud.tenable.com"
+
 type TenableClient struct {
 	baseURL string
 	client  *http.Client
+	common  service
 	// AccessKey for service
 	accessKey string
 	secretKey string
@@ -28,15 +31,28 @@ type TenableClient struct {
 	Debug bool
 	//username to impersonate as
 	impersonate string
+
+	Scans   *ScansService
+	Folders *FoldersService
+	Server  *ServerService
+}
+
+type service struct {
+	client *TenableClient
 }
 
 func NewClient(accessKey string, secretKey string) *TenableClient {
-	return &TenableClient{
-		baseURL:   "https://cloud.tenable.com",
-		client:    http.DefaultClient,
+	c := &TenableClient{
+		baseURL:   tenableAPI,
 		accessKey: accessKey,
 		secretKey: secretKey,
+		client:    http.DefaultClient,
 	}
+	c.common.client = c
+	c.Scans = (*ScansService)(&c.common)
+	c.Folders = (*FoldersService)(&c.common)
+	c.Server = (*ServerService)(&c.common)
+	return c
 }
 
 func (t *TenableClient) createRequest(method string, relativeUrl string, data url.Values) (*http.Request, error) {
@@ -94,55 +110,4 @@ func (t *TenableClient) SetBaseUrl(baseUrl string) {
 
 func (t *TenableClient) ImpersonateAs(username string) {
 	t.impersonate = username
-}
-
-func (t *TenableClient) ScansList(ctx context.Context) (*ScansList, error) {
-	req, err := t.createRequest(http.MethodGet, "scans", nil)
-	if err != nil {
-		log.Printf("Failed to create request %s", err)
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	list := &ScansList{}
-	err = t.doRequest(ctx, req, list)
-	return list, err
-}
-
-func (t *TenableClient) ServerProperties(ctx context.Context) (*ServerProperties, error) {
-	req, err := t.createRequest(http.MethodGet, "server/properties", nil)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	props := &ServerProperties{}
-	err = t.doRequest(ctx, req, props)
-	return props, err
-}
-
-func (t *TenableClient) ServerStatus(ctx context.Context) (*ServerStatus, error) {
-	req, err := t.createRequest(http.MethodGet, "server/status", nil)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	status := &ServerStatus{}
-	err = t.doRequest(ctx, req, status)
-	return status, err
-}
-
-func (t *TenableClient) ScanDetail(ctx context.Context, id string) (*ScanDetail, error) {
-	req, err := t.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	status := &ScanDetail{}
-	err = t.doRequest(ctx, req, status)
-	return status, err
-}
-
-func (t *TenableClient) FoldersList(ctx context.Context) (*FoldersList, error) {
-	req, err := t.createRequest(http.MethodGet, "folders", nil)
-	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	status := &FoldersList{}
-	err = t.doRequest(ctx, req, status)
-	return status, err
 }
