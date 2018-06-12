@@ -22,12 +22,12 @@ type FoldersList struct {
 	Folders []Folder `json:"folders"`
 }
 
-func (f *FoldersService) List(ctx context.Context) (*FoldersList, error) {
-	req, err := f.client.createRequest(http.MethodGet, "folders", nil)
+func (s *FoldersService) List(ctx context.Context) (*FoldersList, *Response, error) {
+	req, err := s.client.createRequest(http.MethodGet, "folders", nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &FoldersList{}
-	err = f.client.doRequest(ctx, req, status)
-	return status, err
+	response, err := s.client.doRequest(ctx, req, status)
+	return status, response, err
 }

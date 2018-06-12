@@ -84,22 +84,22 @@ type ServerProperties struct {
 	} `json:"update"`
 }
 
-func (s *ServerService) Properties(ctx context.Context) (*ServerProperties, error) {
+func (s *ServerService) Properties(ctx context.Context) (*ServerProperties, *Response, error) {
 	req, err := s.client.createRequest(http.MethodGet, "server/properties", nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
 	}
 	props := &ServerProperties{}
-	err = s.client.doRequest(ctx, req, props)
-	return props, err
+	response, err := s.client.doRequest(ctx, req, props)
+	return props, response, err
 }
 
-func (s *ServerService) Status(ctx context.Context) (*ServerStatus, error) {
+func (s *ServerService) Status(ctx context.Context) (*ServerStatus, *Response, error) {
 	req, err := s.client.createRequest(http.MethodGet, "server/status", nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &ServerStatus{}
-	err = s.client.doRequest(ctx, req, status)
-	return status, err
+	response, err := s.client.doRequest(ctx, req, status)
+	return status, response, err
 }

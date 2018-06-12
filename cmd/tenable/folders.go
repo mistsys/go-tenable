@@ -18,11 +18,12 @@ var foldersListCmd = &cobra.Command{
 	Use:   "list [ID...]",
 	Short: "List folders.",
 	Run: func(cmd *cobra.Command, args []string) {
-		lst, err := client.Folders.List(context.Background())
+		_, response, err := client.Folders.List(context.Background())
 		if err != nil {
 			log.Println("Error getting folders list", err)
 		}
-		fmt.Printf("%q", lst)
+		// fmt.Printf("%q", lst)
+		fmt.Println(response.BodyJson())
 	},
 }
 

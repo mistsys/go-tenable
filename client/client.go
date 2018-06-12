@@ -18,6 +18,30 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TODO one thing at a time; let's work with this guy later
+// spcifically should be able to handle query params, body json, tenable-specific filtering options
+type Request struct {
+	RawRequest *http.Request
+	RawBody    []byte
+}
+
+type Response struct {
+	RawResponse *http.Response
+	RawBody     []byte
+	// so eventually, this will have stuff for like, pagination, or whatever
+}
+
+// TODO there can be errors (maybe?); they need to be handled (maybe?) but I want to get actual functional
+// stuff working first. It's a smaller change to ignore the error here than elsewhere
+func (r *Response) BodyJson() string {
+	var buf bytes.Buffer
+	_ = json.Indent(&buf, r.RawBody, "", "  ")
+	// if err != nil {
+	// 	return "", errors.Wrap(err, "Failed to format response body JSON")
+	// }
+	return string(buf.Bytes()) // , err
+}
+
 const tenableAPI = "https://cloud.tenable.com"
 
 type TenableClient struct {
@@ -77,27 +101,32 @@ func (t *TenableClient) createRequest(method string, relativeUrl string, data ur
 	return req, nil
 }
 
-func (t *TenableClient) doRequest(ctx context.Context, req *http.Request, obj interface{}) error {
+func (t *TenableClient) doRequest(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
+	// TODO we'll need to check actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
 	res, err := ctxhttp.Do(ctx, t.client, req)
+	response := &Response{RawResponse: res}
 	if err != nil {
-		return errors.Wrapf(err, "Failed to do request")
+		return response, errors.Wrapf(err, "Failed to do request")
 	}
+
+	buf, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return response, errors.Wrapf(err, "Failed to read response.")
+	}
+	response.RawBody = buf
+
 	if t.Debug {
-		buf, bodyErr := ioutil.ReadAll(res.Body)
-		if bodyErr != nil {
-			return errors.Wrapf(bodyErr, "Failed to read response.")
-		}
-		rdr2 := ioutil.NopCloser(bytes.NewBuffer(buf))
 		log.Printf("DEBUG body: %q", buf)
-		res.Body = rdr2
 	}
+
 	defer res.Body.Close()
-	dec := json.NewDecoder(res.Body)
-	err = dec.Decode(obj)
+
+	err = json.Unmarshal(buf, obj)
 	if err != nil {
-		return errors.Wrapf(err, "Failed to unmarshal")
+		return response, errors.Wrapf(err, "Failed to unmarshal")
 	}
-	return err
+
+	return response, err
 }
 
 func (t *TenableClient) SetHttpClient(client *http.Client) {

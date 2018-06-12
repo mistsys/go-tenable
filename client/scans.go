@@ -3,13 +3,14 @@ package client
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/pkg/errors"
 )
 
 type ScansService service
+
+// RESPONSE STRUCTS
 
 type Scan struct {
 	Control              bool        `json:"control"`
@@ -92,23 +93,53 @@ type ScansList struct {
 	Timestamp int      `json:"timestamp"`
 }
 
-func (s *ScansService) List(ctx context.Context) (*ScansList, error) {
-	req, err := s.client.createRequest(http.MethodGet, "scans", nil)
-	if err != nil {
-		log.Printf("Failed to create request %s", err)
-		return nil, errors.Wrapf(err, "Failed to create request")
-	}
-	list := &ScansList{}
-	err = s.client.doRequest(ctx, req, list)
-	return list, err
+// REQUEST STRUCTS
+
+// The full flow for downloading a scan report is:
+// 1. hit /scans/export-request to start preparing a report file
+// 2. poll /scans/export-status until the file is ready
+// 3. hit /scans/export-download to get the report file
+
+// response object when you successfully *request* a download
+type ScanExportRequest struct {
+	File      string `json:"file"`
+	TempToken string `json:"temp_token"`
 }
 
-func (s *ScansService) Detail(ctx context.Context, id string) (*ScanDetail, error) {
+type ScanExportStatus struct {
+	foo string
+}
+
+type ScanExportDownload struct {
+	foo string
+}
+
+func (s *ScansService) List(ctx context.Context) (*ScansList, *Response, error) {
+	req, err := s.client.createRequest(http.MethodGet, "scans", nil)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
+	}
+	list := &ScansList{}
+	response, err := s.client.doRequest(ctx, req, list)
+	return list, response, err
+}
+
+func (s *ScansService) Detail(ctx context.Context, id string) (*ScanDetail, *Response, error) {
 	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
 	}
 	status := &ScanDetail{}
-	err = s.client.doRequest(ctx, req, status)
-	return status, err
+	response, err := s.client.doRequest(ctx, req, status)
+	return status, response, err
+}
+
+func (s *ScansService) ExportRequest(ctx context.Context, id string) (*ScanDetail, *Response, error) {
+	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "Failed to create request")
+	}
+	status := &ScanDetail{}
+	response, err := s.client.doRequest(ctx, req, status)
+	return status, response, err
 }
