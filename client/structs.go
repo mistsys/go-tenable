@@ -1,5 +1,28 @@
 package client
 
+import (
+	"time"
+)
+
+type Asset struct {
+	ID       string    `json:"id"`
+	HasAgent bool      `json:"has_agent"`
+	LastSeen time.Time `json:"last_seen"`
+	Sources  []struct {
+		Name      string    `json:"name"`
+		FirstSeen time.Time `json:"first_seen"`
+		LastSeen  time.Time `json:"last_seen"`
+	} `json:"sources"`
+	// NOTE these types are just observed... the API docs don't specify a type
+	Ipv4            []string `json:"ipv4"`
+	Ipv6            []string `json:"ipv6"`
+	Fqdn            []string `json:"fqdn"`
+	NetbiosName     []string `json:"netbios_name"`
+	OperatingSystem []string `json:"operating_system"`
+	AgentName       []string `json:"agent_name"`
+	MacAddress      []string `json:"mac_address"`
+}
+
 type Host struct {
 	AssetID             int    `json:"asset_id"`
 	Critical            int    `json:"critical"`
@@ -37,15 +60,31 @@ type History struct {
 	UUID                 string `json:"uuid"`
 }
 
+// type Vulnerability struct {
+// 	Count        int    `json:"count"`
+// 	PluginFamily string `json:"plugin_family"`
+// 	PluginID     int    `json:"plugin_id"`
+// 	PluginName   string `json:"plugin_name"`
+// 	Severity     int    `json:"severity"`
+// 	VulnIndex    int    `json:"vuln_index"`
+// }
+
 type Vulnerability struct {
-	Count        int    `json:"count"`
-	PluginFamily string `json:"plugin_family"`
-	PluginID     int    `json:"plugin_id"`
-	PluginName   string `json:"plugin_name"`
-	Severity     int    `json:"severity"`
-	VulnIndex    int    `json:"vuln_index"`
+	Count              int    `json:"count"`
+	PluginFamily       string `json:"plugin_family"`
+	PluginID           int    `json:"plugin_id"`
+	PluginName         string `json:"plugin_name"`
+	VulnerabilityState string `json:"vulnerability_state"`
+	AcceptedCount      int    `json:"accepted_count"`
+	RecastedCount      int    `json:"recasted_count"`
+	CountsBySeverity   []struct {
+		Count int `json:"count"`
+		Value int `json:"value"`
+	} `json:"counts_by_severity"`
+	Severity int `json:"severity"`
 }
 
+// what's this
 type Filter struct {
 	Control struct {
 		ReadableRegex string `json:"readable_regex"`
@@ -56,6 +95,25 @@ type Filter struct {
 	Name         string   `json:"name"`
 	Operators    []string `json:"operators"`
 	ReadableName string   `json:"readable_name"`
+}
+
+type VulnerabilityOutputs struct {
+	PluginOutput string `json:"plugin_output"`
+	States       []struct {
+		Name    string `json:"name"`
+		Results []struct {
+			ApplicationProtocol string `json:"application_protocol"`
+			Port                int    `json:"port"`
+			TransportProtocol   string `json:"transport_protocol"`
+			// not the same as a usual Asset, so no refactor here
+			Assets []struct {
+				Hostname string `json:"hostname"`
+				ID       string `json:"id"`
+				UUID     string `json:"uuid"`
+			} `json:"assets"`
+			Severity int `json:"severity"`
+		} `json:"results"`
+	} `json:"states"`
 }
 
 type Note struct {

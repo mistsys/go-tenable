@@ -53,12 +53,14 @@ type TenableClient struct {
 	secretKey string
 	// turn this on if you want to dump request/response
 	Debug bool
-	//username to impersonate as
+	// username to impersonate as
 	impersonate string
 
-	Scans   *ScansService
-	Folders *FoldersService
-	Server  *ServerService
+	// all the service objects defined in lowercaseservicename.go
+	Scans       *ScansService
+	Folders     *FoldersService
+	Server      *ServerService
+	Workbenches *WorkbenchesService
 }
 
 type service struct {
@@ -76,6 +78,7 @@ func NewClient(accessKey string, secretKey string) *TenableClient {
 	c.Scans = (*ScansService)(&c.common)
 	c.Folders = (*FoldersService)(&c.common)
 	c.Server = (*ServerService)(&c.common)
+	c.Workbenches = (*WorkbenchesService)(&c.common)
 	return c
 }
 
