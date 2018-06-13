@@ -22,21 +22,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO one thing at a time; let's work with this guy later
-// spcifically should be able to handle query params, body json, tenable-specific filtering options
-type Request struct {
-	RawRequest *http.Request
-	RawBody    []byte
-}
-
 type Response struct {
 	RawResponse *http.Response
 	RawBody     []byte
-	// so eventually, this will have stuff for like, pagination, or whatever
+	// so eventually, this will have stuff for like, pagination, or something
+	// some of the endpoints return a "see more"? though that might be per Resource, not per response
 }
 
-// TODO there can be errors (maybe?); they need to be handled (maybe?) but I want to get actual functional
-// stuff working first. It's a smaller change to ignore the error here than elsewhere
+// TODO there can be errors (maybe?); they need to be handled (maybe?)
 func (r *Response) BodyJson() string {
 	var buf bytes.Buffer
 	_ = json.Indent(&buf, r.RawBody, "", "  ")
@@ -90,14 +83,6 @@ func (t *TenableClient) NewRequest(method string, relativeUrl string, body inter
 	u, _ := url.Parse(t.baseURL)
 	u.Path = path.Join(u.Path, relativeUrl)
 
-	// if query != nil {
-	// 	queryOpts, err := query.Values(query)
-	// 	if err != nil {
-	// 		return nil, errors.Wrapf(err, "Failed to create query string")
-	// 	}
-	// 	u.RawQuery = queryOpts.Encode()
-	// }
-
 	var buf io.ReadWriter
 	if body != nil {
 		buf = new(bytes.Buffer)
@@ -130,7 +115,7 @@ func (t *TenableClient) NewRequest(method string, relativeUrl string, body inter
 }
 
 func (t *TenableClient) Do(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
-	// TODO we'll need to check actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
+	// TODO we'll need to handle actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
 	res, err := ctxhttp.Do(ctx, t.client, req)
 	response := &Response{RawResponse: res}
 	if err != nil {

@@ -60,15 +60,6 @@ type History struct {
 	UUID                 string `json:"uuid"`
 }
 
-// type Vulnerability struct {
-// 	Count        int    `json:"count"`
-// 	PluginFamily string `json:"plugin_family"`
-// 	PluginID     int    `json:"plugin_id"`
-// 	PluginName   string `json:"plugin_name"`
-// 	Severity     int    `json:"severity"`
-// 	VulnIndex    int    `json:"vuln_index"`
-// }
-
 type Vulnerability struct {
 	Count              int    `json:"count"`
 	PluginFamily       string `json:"plugin_family"`
