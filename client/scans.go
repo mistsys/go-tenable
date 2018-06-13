@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 type ScansService service
@@ -115,31 +113,31 @@ type ScanExportDownload struct {
 }
 
 func (s *ScansService) List(ctx context.Context) (*ScansList, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, "scans", nil)
+	req, err := s.client.NewRequest(http.MethodGet, "scans", nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	list := &ScansList{}
-	response, err := s.client.doRequest(ctx, req, list)
+	response, err := s.client.Do(ctx, req, list)
 	return list, response, err
 }
 
 func (s *ScansService) Detail(ctx context.Context, id string) (*ScanDetail, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	status := &ScanDetail{}
-	response, err := s.client.doRequest(ctx, req, status)
+	response, err := s.client.Do(ctx, req, status)
 	return status, response, err
 }
 
 func (s *ScansService) ExportRequest(ctx context.Context, id string) (*ScanDetail, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	status := &ScanDetail{}
-	response, err := s.client.doRequest(ctx, req, status)
+	response, err := s.client.Do(ctx, req, status)
 	return status, response, err
 }

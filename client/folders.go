@@ -3,8 +3,6 @@ package client
 import (
 	"context"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 type FoldersService service
@@ -23,11 +21,11 @@ type FoldersList struct {
 }
 
 func (s *FoldersService) List(ctx context.Context) (*FoldersList, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, "folders", nil)
+	req, err := s.client.NewRequest(http.MethodGet, "folders", nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	status := &FoldersList{}
-	response, err := s.client.doRequest(ctx, req, status)
+	response, err := s.client.Do(ctx, req, status)
 	return status, response, err
 }

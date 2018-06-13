@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 type WorkbenchesService service
@@ -174,71 +172,71 @@ type WorkbenchesVulnerabilityOutputs struct {
 }
 
 func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*WorkbenchesVulnerabilities, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, "workbenches/vulnerabilities", nil)
+	req, err := s.client.NewRequest(http.MethodGet, "workbenches/vulnerabilities", nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	props := &WorkbenchesVulnerabilities{}
-	response, err := s.client.doRequest(ctx, req, props)
+	response, err := s.client.Do(ctx, req, props)
 	return props, response, err
 }
 
 func (s *WorkbenchesService) VulnerabilityInfo(ctx context.Context, id string) (*WorkbenchesVulnerabilityInfo, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/info", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/info", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	info := &WorkbenchesVulnerabilityInfo{}
-	response, err := s.client.doRequest(ctx, req, info)
+	response, err := s.client.Do(ctx, req, info)
 	return info, response, err
 }
 
 func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, id string) (*WorkbenchesVulnerabilityOutputs, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	pluginOutputs := &WorkbenchesVulnerabilityOutputs{}
-	response, err := s.client.doRequest(ctx, req, pluginOutputs)
+	response, err := s.client.Do(ctx, req, pluginOutputs)
 	return pluginOutputs, response, err
 }
 
 func (s *WorkbenchesService) Assets(ctx context.Context) (*WorkbenchesAssets, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, "workbenches/assets", nil)
+	req, err := s.client.NewRequest(http.MethodGet, "workbenches/assets", nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	assets := &WorkbenchesAssets{}
-	response, err := s.client.doRequest(ctx, req, assets)
+	response, err := s.client.Do(ctx, req, assets)
 	return assets, response, err
 }
 
 func (s *WorkbenchesService) AssetInfo(ctx context.Context, id string) (*WorkbenchesAssetInfo, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/info", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/info", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	info := &WorkbenchesAssetInfo{}
-	response, err := s.client.doRequest(ctx, req, info)
+	response, err := s.client.Do(ctx, req, info)
 	return info, response, err
 }
 
 func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, id string) (*WorkbenchesAssetVulnerabilities, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities", id), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities", id), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	vulns := &WorkbenchesAssetVulnerabilities{}
-	response, err := s.client.doRequest(ctx, req, vulns)
+	response, err := s.client.Do(ctx, req, vulns)
 	return vulns, response, err
 }
 
 func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*WorkbenchesAssetVulnerabilityInfo, *Response, error) {
-	req, err := s.client.createRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId), nil)
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId), nil)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "Failed to create request")
+		return nil, nil, err
 	}
 	vulns := &WorkbenchesAssetVulnerabilityInfo{}
-	response, err := s.client.doRequest(ctx, req, vulns)
+	response, err := s.client.Do(ctx, req, vulns)
 	return vulns, response, err
 }

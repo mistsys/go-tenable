@@ -1,3 +1,5 @@
+// XXX naming this package client (and calling the client TenableClient) is poor style, or at least idiosyncratic
+// usually, the package would be named tenable, and the client would just be Client. TODO make that change...
 package client
 
 import (
@@ -5,16 +7,18 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"path"
-	"strings"
+	// "strings"
 
 	"golang.org/x/net/context/ctxhttp"
 
+	// "github.com/google/go-querystring/query"
 	"github.com/pkg/errors"
 )
 
@@ -82,13 +86,34 @@ func NewClient(accessKey string, secretKey string) *TenableClient {
 	return c
 }
 
-func (t *TenableClient) createRequest(method string, relativeUrl string, data url.Values) (*http.Request, error) {
+func (t *TenableClient) NewRequest(method string, relativeUrl string, body interface{}) (*http.Request, error) {
 	u, _ := url.Parse(t.baseURL)
 	u.Path = path.Join(u.Path, relativeUrl)
-	req, err := http.NewRequest(method, u.String(), strings.NewReader(data.Encode()))
+
+	// if query != nil {
+	// 	queryOpts, err := query.Values(query)
+	// 	if err != nil {
+	// 		return nil, errors.Wrapf(err, "Failed to create query string")
+	// 	}
+	// 	u.RawQuery = queryOpts.Encode()
+	// }
+
+	var buf io.ReadWriter
+	if body != nil {
+		buf = new(bytes.Buffer)
+		err := json.NewEncoder(buf).Encode(body)
+		if err != nil {
+			return nil, err
+		}
+	}
+	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 
+	}
+
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("X-ApiKeys", fmt.Sprintf("accessKey=%s; secretKey=%s", t.accessKey, t.secretKey))
 	if t.impersonate != "" {
@@ -104,7 +129,7 @@ func (t *TenableClient) createRequest(method string, relativeUrl string, data ur
 	return req, nil
 }
 
-func (t *TenableClient) doRequest(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
+func (t *TenableClient) Do(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
 	// TODO we'll need to check actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
 	res, err := ctxhttp.Do(ctx, t.client, req)
 	response := &Response{RawResponse: res}
