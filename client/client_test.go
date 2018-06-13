@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestTenableClient_createRequest(t *testing.T) {
+func TestTenableClient_NewRequest(t *testing.T) {
 	type fields struct {
 		baseURL     string
 		client      *http.Client
@@ -80,13 +80,13 @@ func TestTenableClient_createRequest(t *testing.T) {
 				Debug:       tt.fields.Debug,
 				impersonate: tt.fields.impersonate,
 			}
-			got, err := tc.createRequest(tt.args.method, tt.args.relativeUrl, tt.args.data)
+			got, err := tc.NewRequest(tt.args.method, tt.args.relativeUrl, tt.args.data)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("TenableClient.createRequest() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("TenableClient.NewRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got.Header, tt.want.Header) {
-				t.Errorf("TenableClient.createRequest() = %v, want %v", got.Header, tt.want.Header)
+				t.Errorf("TenableClient.NewRequest() = %v, want %v", got.Header, tt.want.Header)
 			}
 		})
 	}
