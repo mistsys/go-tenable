@@ -88,25 +88,6 @@ type Filter struct {
 	ReadableName string   `json:"readable_name"`
 }
 
-type VulnerabilityOutputs struct {
-	PluginOutput string `json:"plugin_output"`
-	States       []struct {
-		Name    string `json:"name"`
-		Results []struct {
-			ApplicationProtocol string `json:"application_protocol"`
-			Port                int    `json:"port"`
-			TransportProtocol   string `json:"transport_protocol"`
-			// not the same as a usual Asset, so no refactor here
-			Assets []struct {
-				Hostname string `json:"hostname"`
-				ID       string `json:"id"`
-				UUID     string `json:"uuid"`
-			} `json:"assets"`
-			Severity int `json:"severity"`
-		} `json:"results"`
-	} `json:"states"`
-}
-
 type Note struct {
 	Title    string `json:"title"`
 	Message  string `json:"message"`

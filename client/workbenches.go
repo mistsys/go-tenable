@@ -1,3 +1,5 @@
+// workbenches, not representing a resource in its own right, does not prepend Workbenches to the resource structs
+// cf the other endpoint implementations
 package client
 
 import (
@@ -11,12 +13,12 @@ type WorkbenchesService service
 
 // RESPONSE STRUCTS
 
-type WorkbenchesAssets struct {
+type Assets struct {
 	Assets []Asset `json:"assets"`
 	Total  int     `json:"total"`
 }
 
-type WorkbenchesAssetInfo struct {
+type AssetInfo struct {
 	Info struct {
 		TimeEnd         time.Time `json:"time_end"`
 		TimeStart       time.Time `json:"time_start"`
@@ -87,25 +89,25 @@ type WorkbenchesAssetInfo struct {
 	} `json:"info"`
 }
 
-type WorkbenchesAssetVulnerabilities struct {
+type AssetVulnerabilities struct {
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
 	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
 	TotalAssetCount         int             `json:"total_asset_count"`
 }
 
-type WorkbenchesAssetVulnerabilityInfo struct {
+type AssetVulnerabilityInfo struct {
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
 	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
 	TotalAssetCount         int             `json:"total_asset_count"`
 }
 
-type WorkbenchesVulnerabilities struct {
+type Vulnerabilities struct {
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
 	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
 	TotalAssetCount         int             `json:"total_asset_count"`
 }
 
-type WorkbenchesVulnerabilityInfo struct {
+type VulnerabilityInfo struct {
 	// TODO rename
 	Info struct {
 		Count       int    `json:"count"`
@@ -167,76 +169,97 @@ type WorkbenchesVulnerabilityInfo struct {
 	} `json:"info"`
 }
 
-type WorkbenchesVulnerabilityOutputs struct {
-	Outputs []VulnerabilityOutputs `json:"outputs"`
+type VulnerabilityOutput struct {
+	PluginOutput string `json:"plugin_output"`
+	States       []struct {
+		Name    string `json:"name"`
+		Results []struct {
+			ApplicationProtocol string `json:"application_protocol"`
+			Port                int    `json:"port"`
+			TransportProtocol   string `json:"transport_protocol"`
+			// not the same as the usual Asset, so no refactor here
+			Assets []struct {
+				Hostname string `json:"hostname"`
+				ID       string `json:"id"`
+				UUID     string `json:"uuid"`
+			} `json:"assets"`
+			Severity int `json:"severity"`
+		} `json:"results"`
+	} `json:"states"`
 }
 
-func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*WorkbenchesVulnerabilities, *Response, error) {
+type VulnerabilityOutputs struct {
+	Outputs []VulnerabilityOutput `json:"outputs"`
+}
+
+func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*Vulnerabilities, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "workbenches/vulnerabilities", nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	props := &WorkbenchesVulnerabilities{}
+	props := &Vulnerabilities{}
 	response, err := s.client.Do(ctx, req, props)
 	return props, response, err
 }
 
-func (s *WorkbenchesService) VulnerabilityInfo(ctx context.Context, id string) (*WorkbenchesVulnerabilityInfo, *Response, error) {
+func (s *WorkbenchesService) VulnerabilityInfo(ctx context.Context, id string) (*VulnerabilityInfo, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/info", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	info := &WorkbenchesVulnerabilityInfo{}
+	info := &VulnerabilityInfo{}
 	response, err := s.client.Do(ctx, req, info)
 	return info, response, err
 }
 
-func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, id string) (*WorkbenchesVulnerabilityOutputs, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", id), nil)
+// the endpoint is called vulnerability-output in the docs, but the return is a list of vulnerability-outputs. This function name
+// deviates a bit from the usual naming scheme to preserve sanity
+func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", pluginId), nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	pluginOutputs := &WorkbenchesVulnerabilityOutputs{}
+	pluginOutputs := &VulnerabilityOutputs{}
 	response, err := s.client.Do(ctx, req, pluginOutputs)
 	return pluginOutputs, response, err
 }
 
-func (s *WorkbenchesService) Assets(ctx context.Context) (*WorkbenchesAssets, *Response, error) {
+func (s *WorkbenchesService) Assets(ctx context.Context) (*Assets, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, "workbenches/assets", nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	assets := &WorkbenchesAssets{}
+	assets := &Assets{}
 	response, err := s.client.Do(ctx, req, assets)
 	return assets, response, err
 }
 
-func (s *WorkbenchesService) AssetInfo(ctx context.Context, id string) (*WorkbenchesAssetInfo, *Response, error) {
+func (s *WorkbenchesService) AssetInfo(ctx context.Context, id string) (*AssetInfo, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/info", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	info := &WorkbenchesAssetInfo{}
+	info := &AssetInfo{}
 	response, err := s.client.Do(ctx, req, info)
 	return info, response, err
 }
 
-func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, id string) (*WorkbenchesAssetVulnerabilities, *Response, error) {
+func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, id string) (*AssetVulnerabilities, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities", id), nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	vulns := &WorkbenchesAssetVulnerabilities{}
+	vulns := &AssetVulnerabilities{}
 	response, err := s.client.Do(ctx, req, vulns)
 	return vulns, response, err
 }
 
-func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*WorkbenchesAssetVulnerabilityInfo, *Response, error) {
+func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
 	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId), nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	vulns := &WorkbenchesAssetVulnerabilityInfo{}
+	vulns := &AssetVulnerabilityInfo{}
 	response, err := s.client.Do(ctx, req, vulns)
 	return vulns, response, err
 }
