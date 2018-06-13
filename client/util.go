@@ -2,8 +2,10 @@ package client
 
 import (
 	"encoding/json"
+	"net/url"
 	"strconv"
 
+	"github.com/google/go-querystring/query"
 	"github.com/pkg/errors"
 )
 
@@ -34,4 +36,19 @@ func (n NumericBool) UnmarshalJSON(b []byte) error {
 		}
 	}
 	return nil
+}
+
+func makeURL(base string, opts interface{}) (string, error) {
+	u, err := url.Parse(base)
+	if err != nil {
+		return "", err
+	}
+	if opts != nil {
+		optsVals, err := query.Values(opts)
+		if err != nil {
+			return "", errors.Wrapf(err, "Failed to create query string")
+		}
+		u.RawQuery = optsVals.Encode()
+	}
+	return u.String(), nil
 }
