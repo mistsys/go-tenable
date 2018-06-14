@@ -114,7 +114,7 @@ func (t *TenableClient) NewRequest(method string, relativeUrl string, body inter
 	return req, nil
 }
 
-func (t *TenableClient) Do(ctx context.Context, req *http.Request, obj interface{}) (*Response, error) {
+func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interface{}) (*Response, error) {
 	// TODO we'll need to handle actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
 	res, err := ctxhttp.Do(ctx, t.client, req)
 	response := &Response{RawResponse: res}
@@ -134,12 +134,26 @@ func (t *TenableClient) Do(ctx context.Context, req *http.Request, obj interface
 
 	defer res.Body.Close()
 
-	err = json.Unmarshal(buf, obj)
+	err = json.Unmarshal(buf, dest)
 	if err != nil {
 		return response, errors.Wrapf(err, "Failed to unmarshal")
 	}
 
 	return response, err
+}
+
+func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, body interface{}, dest interface{}) (*Response, error) {
+	u, err := makeUrl(url, opts)
+	if err != nil {
+		return nil, err
+	}
+	// TODO ignoring body for now
+	req, err := t.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := t.Do(ctx, req, dest)
+	return resp, err
 }
 
 func (t *TenableClient) SetHttpClient(client *http.Client) {

@@ -37,7 +37,7 @@ var workbenchesAssetInfoCmd = &cobra.Command{
 	Short: "Get general information about an asset",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		_, response, err := client.Workbenches.AssetInfo(context.Background(), args[0])
+		_, response, err := client.Workbenches.AssetsInfo(context.Background(), args[0])
 		if err != nil {
 			log.Println("Error getting asset info", err)
 		}
@@ -58,16 +58,17 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 		}
 		// fmt.Printf("%v", vulns)
 		fmt.Printf(response.BodyJson())
+		fmt.Println(cmd.Flags().Lookup("query").Value)
 	},
 }
 
-var workbenchesVulnerabilityInfoCmd = &cobra.Command{
+var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 	Use:   "vulnerability-info [PLUGIN_ID...]",
 	Short: "Get the vulnerability details for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for i := 0; i < len(args); i++ {
-			_, response, err := client.Workbenches.VulnerabilityInfo(context.Background(), args[i])
+			_, response, err := client.Workbenches.VulnerabilitiesInfo(context.Background(), args[i])
 			if err != nil {
 				log.Println("Error getting vulnerability info", err)
 			}
@@ -77,13 +78,13 @@ var workbenchesVulnerabilityInfoCmd = &cobra.Command{
 	},
 }
 
-var workbenchesVulnerabilityOutputsCmd = &cobra.Command{
+var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
 	Use:   "vulnerability-output [PLUGIN_ID...]",
 	Short: "Get the vulnerability outputs for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		for i := 0; i < len(args); i++ {
-			_, response, err := client.Workbenches.VulnerabilityOutputs(context.Background(), args[i])
+			_, response, err := client.Workbenches.VulnerabilitiesOutputs(context.Background(), args[i])
 			if err != nil {
 				log.Println("Error getting vulnerability outputs", err)
 			}
@@ -98,6 +99,6 @@ func init() {
 	workbenchesCmd.AddCommand(workbenchesAssetsCmd)
 	workbenchesCmd.AddCommand(workbenchesAssetInfoCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesCmd)
-	workbenchesCmd.AddCommand(workbenchesVulnerabilityInfoCmd)
-	workbenchesCmd.AddCommand(workbenchesVulnerabilityOutputsCmd)
+	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
+	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesOutputsCmd)
 }

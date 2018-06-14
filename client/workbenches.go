@@ -5,7 +5,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"time"
 )
 
@@ -192,74 +191,85 @@ type VulnerabilityOutputs struct {
 	Outputs []VulnerabilityOutput `json:"outputs"`
 }
 
+type ExportRequest struct {
+	File int `json:"file"`
+}
+
+// REQUEST STRUCTS
+
+// NOTE not sure if even used
+type WorkbenchExportRequestOpts struct {
+	// REQUIRED
+	// valid values are nessus, html, pdf, csv
+	Format string `url:"format"`
+	// only valid value is vulnerabilities
+	Report string `url:"report"`
+	// date given as unix epoch time
+	// semicolon-separated list, valid values are vuln_by_plugin, vuln_by_asset, vuln_hosts_summary, exec_summary, diff
+	// only vuln_by_asset is supported for nessus format
+	Chapter string `url:"chapter"`
+
+	// NOT REQUIRED
+	StartDate int `url:"start_date,omitempty"`
+	// number of days
+	DateRange int    `url:"date_range,omitempty"`
+	Filters   string `url:"filters,omitempty"` // TODO
+	// valid values are and, or
+	FilterSearchType string `url:"filter_search_type,omitempty"`
+	MinimumVulnInfo  bool   `url:"minimum_vuln_info,omitempty"`
+	PluginId         int    `url:"plugin_id,omitempty"`
+	AssetId          string `url:"asset_id,omitempty"`
+}
+
 func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*Vulnerabilities, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "workbenches/vulnerabilities", nil)
-	if err != nil {
-		return nil, nil, err
-	}
 	props := &Vulnerabilities{}
-	response, err := s.client.Do(ctx, req, props)
+	response, err := s.client.Get(ctx, "workbenches/vulnerabilities", nil, nil, props)
 	return props, response, err
 }
 
-func (s *WorkbenchesService) VulnerabilityInfo(ctx context.Context, id string) (*VulnerabilityInfo, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/info", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId string) (*VulnerabilityInfo, *Response, error) {
+	u := fmt.Sprintf("workbenches/vulnerabilities/%s/info", pluginId)
 	info := &VulnerabilityInfo{}
-	response, err := s.client.Do(ctx, req, info)
+	response, err := s.client.Get(ctx, u, nil, nil, info)
 	return info, response, err
 }
 
-// the endpoint is called vulnerability-output in the docs, but the return is a list of vulnerability-outputs. This function name
-// deviates a bit from the usual naming scheme to preserve sanity
-func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", pluginId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	pluginOutputs := &VulnerabilityOutputs{}
-	response, err := s.client.Do(ctx, req, pluginOutputs)
-	return pluginOutputs, response, err
+func (s *WorkbenchesService) VulnerabilitiesOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
+	u := fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", pluginId)
+	outputs := &VulnerabilityOutputs{}
+	response, err := s.client.Get(ctx, u, nil, nil, outputs)
+	return outputs, response, err
 }
 
 func (s *WorkbenchesService) Assets(ctx context.Context) (*Assets, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "workbenches/assets", nil)
-	if err != nil {
-		return nil, nil, err
-	}
 	assets := &Assets{}
-	response, err := s.client.Do(ctx, req, assets)
+	response, err := s.client.Get(ctx, "workbenches/assets", nil, nil, assets)
 	return assets, response, err
 }
 
-func (s *WorkbenchesService) AssetInfo(ctx context.Context, id string) (*AssetInfo, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/info", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*AssetInfo, *Response, error) {
+	u := fmt.Sprintf("workbenches/assets/%s/info", assetId)
 	info := &AssetInfo{}
-	response, err := s.client.Do(ctx, req, info)
+	response, err := s.client.Get(ctx, u, nil, nil, info)
 	return info, response, err
 }
 
-func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, id string) (*AssetVulnerabilities, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilities, *Response, error) {
+	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities", assetId)
 	vulns := &AssetVulnerabilities{}
-	response, err := s.client.Do(ctx, req, vulns)
+	response, err := s.client.Get(ctx, u, nil, nil, vulns)
 	return vulns, response, err
 }
 
-func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+func (s *WorkbenchesService) AssetVulnerabilitiesInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
+	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId)
 	vulns := &AssetVulnerabilityInfo{}
-	response, err := s.client.Do(ctx, req, vulns)
+	response, err := s.client.Get(ctx, u, nil, nil, vulns)
 	return vulns, response, err
+}
+
+func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest, *Response, error) {
+	exp := &ExportRequest{}
+	response, err := s.client.Get(ctx, "workbenches/export", nil, nil, exp)
+	return exp, response, err
 }
