@@ -113,27 +113,21 @@ type ScanExportDownload struct {
 }
 
 func (s *ScansService) List(ctx context.Context) (*ScansList, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "scans", nil)
-	if err != nil {
-		return nil, nil, err
-	}
 	list := &ScansList{}
-	response, err := s.client.Do(ctx, req, list)
+	response, err := s.client.Get(ctx, "scans", nil, nil, list)
 	return list, response, err
 }
 
-func (s *ScansService) Detail(ctx context.Context, id string) (*ScanDetail, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
-	if err != nil {
-		return nil, nil, err
-	}
+func (s *ScansService) Detail(ctx context.Context, scanId string) (*ScanDetail, *Response, error) {
+	u := fmt.Sprintf("scans/%s", scanId)
 	status := &ScanDetail{}
-	response, err := s.client.Do(ctx, req, status)
+	response, err := s.client.Get(ctx, u, nil, nil, status)
 	return status, response, err
 }
 
-func (s *ScansService) ExportRequest(ctx context.Context, id string) (*ScanDetail, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", id), nil)
+// TODO actually supposed to be a POST
+func (s *ScansService) ExportRequest(ctx context.Context, scanId string) (*ScanDetail, *Response, error) {
+	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", scanId), nil)
 	if err != nil {
 		return nil, nil, err
 	}

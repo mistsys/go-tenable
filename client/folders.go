@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"net/http"
 )
 
 type FoldersService service
@@ -21,11 +20,7 @@ type FoldersList struct {
 }
 
 func (s *FoldersService) List(ctx context.Context) (*FoldersList, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "folders", nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	status := &FoldersList{}
-	response, err := s.client.Do(ctx, req, status)
-	return status, response, err
+	list := &FoldersList{}
+	response, err := s.client.Get(ctx, "folders", nil, nil, list)
+	return list, response, err
 }

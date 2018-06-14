@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"net/http"
 )
 
 type ServerService service
@@ -83,21 +82,13 @@ type ServerProperties struct {
 }
 
 func (s *ServerService) Properties(ctx context.Context) (*ServerProperties, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "server/properties", nil)
-	if err != nil {
-		return nil, nil, err
-	}
 	props := &ServerProperties{}
-	response, err := s.client.Do(ctx, req, props)
+	response, err := s.client.Get(ctx, "server/properties", nil, nil, props)
 	return props, response, err
 }
 
 func (s *ServerService) Status(ctx context.Context) (*ServerStatus, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, "server/status", nil)
-	if err != nil {
-		return nil, nil, err
-	}
 	status := &ServerStatus{}
-	response, err := s.client.Do(ctx, req, status)
+	response, err := s.client.Get(ctx, "server/status", nil, nil, status)
 	return status, response, err
 }
