@@ -38,7 +38,7 @@ func (n NumericBool) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func makeURL(base string, opts interface{}) (string, error) {
+func makeUrl(base string, opts interface{}) (string, error) {
 	u, err := url.Parse(base)
 	if err != nil {
 		return "", err
