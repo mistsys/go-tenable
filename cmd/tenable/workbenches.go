@@ -33,7 +33,7 @@ var workbenchesAssetsCmd = &cobra.Command{
 }
 
 var workbenchesAssetInfoCmd = &cobra.Command{
-	Use:   "asset-info ID",
+	Use:   "assets-info ID",
 	Short: "Get general information about an asset",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -63,7 +63,7 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 }
 
 var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
-	Use:   "vulnerability-info [PLUGIN_ID...]",
+	Use:   "vulnerabilities-info [PLUGIN_ID...]",
 	Short: "Get the vulnerability details for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -79,7 +79,7 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 }
 
 var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
-	Use:   "vulnerability-output [PLUGIN_ID...]",
+	Use:   "vulnerabilities-output [PLUGIN_ID...]",
 	Short: "Get the vulnerability outputs for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -94,6 +94,19 @@ var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
 	},
 }
 
+var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
+	Use:   "vulnerabilities-filters",
+	Short: "Get the vilters available for vulnerabilities.",
+	Run: func(cmd *cobra.Command, args []string) {
+		_, response, err := client.Workbenches.VulnerabilitiesFilters(context.Background())
+		if err != nil {
+			log.Println("Error getting vulnerabilities filters", err)
+		}
+		// fmt.Printf("%v", outputs)
+		fmt.Printf(response.BodyJson())
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(workbenchesCmd)
 	workbenchesCmd.AddCommand(workbenchesAssetsCmd)
@@ -101,4 +114,5 @@ func init() {
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesOutputsCmd)
+	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesFiltersCmd)
 }

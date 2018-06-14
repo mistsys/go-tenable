@@ -191,8 +191,18 @@ type VulnerabilityOutputs struct {
 	Outputs []VulnerabilityOutput `json:"outputs"`
 }
 
+type VulnerabilitiesFilters struct {
+	Filters []Filter `json:"filters"`
+}
+
 type ExportRequest struct {
 	File int `json:"file"`
+}
+
+type ExportStatus struct {
+	ProgressTotal string `json:"progress_total"`
+	Progress      string `json:"progress"`
+	Status        string `json:"status"`
 }
 
 // REQUEST STRUCTS
@@ -261,15 +271,38 @@ func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context, assetId 
 	return vulns, response, err
 }
 
-func (s *WorkbenchesService) AssetVulnerabilitiesInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
+func (s *WorkbenchesService) AssetsVulnerabilitiesInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId)
 	vulns := &AssetVulnerabilityInfo{}
 	response, err := s.client.Get(ctx, u, nil, nil, vulns)
 	return vulns, response, err
 }
 
+func (s *WorkbenchesService) VulnerabilitiesFilters(ctx context.Context) (*VulnerabilitiesFilters, *Response, error) {
+	u := fmt.Sprintf("filters/workbenches/vulnerabilities")
+	filters := &VulnerabilitiesFilters{}
+	response, err := s.client.Get(ctx, u, nil, nil, filters)
+	return filters, response, err
+}
+
+// TODO the struct names will collide with scan exports, BUT they might be the same structure, and thus be common
 func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest, *Response, error) {
 	exp := &ExportRequest{}
 	response, err := s.client.Get(ctx, "workbenches/export", nil, nil, exp)
 	return exp, response, err
 }
+
+func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*ExportStatus, *Response, error) {
+	u := fmt.Sprintf("workbenches/export/%s/status", fileId)
+	exp := &ExportStatus{}
+	response, err := s.client.Get(ctx, u, nil, nil, exp)
+	return exp, response, err
+}
+
+// this would actually download the file, which we don't really want. Maybe these three should get wrapped up into
+// one big ExportDownload that requests, polls, and then hands you a link?
+// func (s *WorkbenchesService) ExportDownload(ctx context.Context) (*ExportRequest, *Response, error) {
+// 	exp := &ExportRequest{}
+// 	response, err := s.client.Get(ctx, "workbenches/export", nil, nil, exp)
+// 	return exp, response, err
+// }
