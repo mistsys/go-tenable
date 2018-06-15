@@ -25,14 +25,40 @@ var workbenchesAssetsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Assets(context.Background())
 		if err != nil {
-			log.Println("Error getting assets list", err)
+			log.Println("Error getting assets", err)
 		}
-		// fmt.Printf("%v", assets)
 		fmt.Printf(response.BodyJson())
 	},
 }
 
-var workbenchesAssetInfoCmd = &cobra.Command{
+var workbenchesAssetsVulnerabilitiesCmd = &cobra.Command{
+	Use:   "assets-vulnerabilities ID",
+	Short: "List (up to) 5000 of the vulnerabilities for an asset",
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		for i := 0; i < len(args); i++ {
+			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background(), args[i])
+			if err != nil {
+				log.Println("Error getting asset vulnerabilites", err)
+			}
+			fmt.Printf(response.BodyJson())
+		}
+	},
+}
+
+var workbenchesAssetsVulnerabilitiesInfoCmd = &cobra.Command{
+	Use:   "assets-vulnerabilities-info assetId pluginId",
+	Short: "Get the details for a vulnerability recorded on a given asset",
+	Run: func(cmd *cobra.Command, args []string) {
+		_, response, err := client.Workbenches.Assets(context.Background())
+		if err != nil {
+			log.Println("Error getting vulnerability info", err)
+		}
+		fmt.Printf(response.BodyJson())
+	},
+}
+
+var workbenchesAssetsInfoCmd = &cobra.Command{
 	Use:   "assets-info ID",
 	Short: "Get general information about an asset",
 	Args:  cobra.MinimumNArgs(1),
@@ -41,7 +67,6 @@ var workbenchesAssetInfoCmd = &cobra.Command{
 		if err != nil {
 			log.Println("Error getting asset info", err)
 		}
-		// fmt.Printf("%v", assetInfo)
 		fmt.Printf(response.BodyJson())
 	},
 }
@@ -56,7 +81,6 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 		if err != nil {
 			log.Println("Error getting vulnerabilities list", err)
 		}
-		// fmt.Printf("%v", vulns)
 		fmt.Printf(response.BodyJson())
 		fmt.Println(cmd.Flags().Lookup("query").Value)
 	},
@@ -72,7 +96,6 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 			if err != nil {
 				log.Println("Error getting vulnerability info", err)
 			}
-			// fmt.Printf("%v", info)
 			fmt.Printf(response.BodyJson())
 		}
 	},
@@ -88,7 +111,6 @@ var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
 			if err != nil {
 				log.Println("Error getting vulnerability outputs", err)
 			}
-			// fmt.Printf("%v", outputs)
 			fmt.Printf(response.BodyJson())
 		}
 	},
@@ -102,7 +124,6 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 		if err != nil {
 			log.Println("Error getting vulnerabilities filters", err)
 		}
-		// fmt.Printf("%v", outputs)
 		fmt.Printf(response.BodyJson())
 	},
 }
@@ -110,7 +131,7 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(workbenchesCmd)
 	workbenchesCmd.AddCommand(workbenchesAssetsCmd)
-	workbenchesCmd.AddCommand(workbenchesAssetInfoCmd)
+	workbenchesCmd.AddCommand(workbenchesAssetsInfoCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesOutputsCmd)
