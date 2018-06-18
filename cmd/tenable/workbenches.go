@@ -19,9 +19,16 @@ var workbenchesCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
+// Assets commands
 var workbenchesAssetsCmd = &cobra.Command{
 	Use:   "assets",
-	Short: "List (up to) 5000 assets.",
+	Short: "Use the Tenable workbenches/assets API",
+	Args:  cobra.MinimumNArgs(1),
+}
+
+var workbenchesAssetsListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List (up to) 5000 assets",
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Assets(context.Background())
 		if err != nil {
@@ -31,8 +38,28 @@ var workbenchesAssetsCmd = &cobra.Command{
 	},
 }
 
+var workbenchesAssetsInfoCmd = &cobra.Command{
+	Use:   "info ID",
+	Short: "Get general information about an asset",
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		_, response, err := client.Workbenches.AssetsInfo(context.Background(), args[0])
+		if err != nil {
+			log.Println("Error getting asset info", err)
+		}
+		fmt.Printf(response.BodyJson())
+	},
+}
+
+// Assets commands
 var workbenchesAssetsVulnerabilitiesCmd = &cobra.Command{
-	Use:   "assets-vulnerabilities ID",
+	Use:   "vulnerabilities",
+	Short: "Use the Tenable workbenches assets vulnerabilities API",
+	Args:  cobra.MinimumNArgs(1),
+}
+
+var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
+	Use:   "list ID",
 	Short: "List (up to) 5000 of the vulnerabilities for an asset",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -47,10 +74,11 @@ var workbenchesAssetsVulnerabilitiesCmd = &cobra.Command{
 }
 
 var workbenchesAssetsVulnerabilitiesInfoCmd = &cobra.Command{
-	Use:   "assets-vulnerabilities-info assetId pluginId",
+	Use:   "info assetId pluginId",
 	Short: "Get the details for a vulnerability recorded on a given asset",
+	Args:  cobra.MinimumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		_, response, err := client.Workbenches.Assets(context.Background())
+		_, response, err := client.Workbenches.AssetsVulnerabilitiesInfo(context.Background(), args[0], args[1])
 		if err != nil {
 			log.Println("Error getting vulnerability info", err)
 		}
@@ -58,23 +86,15 @@ var workbenchesAssetsVulnerabilitiesInfoCmd = &cobra.Command{
 	},
 }
 
-var workbenchesAssetsInfoCmd = &cobra.Command{
-	Use:   "assets-info ID",
-	Short: "Get general information about an asset",
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		_, response, err := client.Workbenches.AssetsInfo(context.Background(), args[0])
-		if err != nil {
-			log.Println("Error getting asset info", err)
-		}
-		fmt.Printf(response.BodyJson())
-	},
-}
-
-// TODO API returns up to first 5000 recorded vulns; add a note about how to get more
-// (once the workbenches export API is implemented)
+// Vulnerabilities commands
 var workbenchesVulnerabilitiesCmd = &cobra.Command{
 	Use:   "vulnerabilities",
+	Short: "Use the Tenable workbenches/vulnerabilities API",
+	Args:  cobra.MinimumNArgs(1),
+}
+
+var workbenchesVulnerabilitiesListCmd = &cobra.Command{
+	Use:   "list",
 	Short: "List (up to) the first 5000 vulnerabilities recorded.",
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Vulnerabilities(context.Background())
@@ -87,7 +107,7 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 }
 
 var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
-	Use:   "vulnerabilities-info [PLUGIN_ID...]",
+	Use:   "info [PLUGIN_ID...]",
 	Short: "Get the vulnerability details for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -102,7 +122,7 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 }
 
 var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
-	Use:   "vulnerabilities-output [PLUGIN_ID...]",
+	Use:   "outputs [PLUGIN_ID...]",
 	Short: "Get the vulnerability outputs for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -117,8 +137,8 @@ var workbenchesVulnerabilitiesOutputsCmd = &cobra.Command{
 }
 
 var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
-	Use:   "vulnerabilities-filters",
-	Short: "Get the vilters available for vulnerabilities.",
+	Use:   "filters",
+	Short: "Get the filters available for vulnerabilities.",
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.VulnerabilitiesFilters(context.Background())
 		if err != nil {
@@ -130,10 +150,17 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(workbenchesCmd)
+
 	workbenchesCmd.AddCommand(workbenchesAssetsCmd)
-	workbenchesCmd.AddCommand(workbenchesAssetsInfoCmd)
+	workbenchesAssetsCmd.AddCommand(workbenchesAssetsListCmd)
+	workbenchesAssetsCmd.AddCommand(workbenchesAssetsInfoCmd)
+	workbenchesAssetsCmd.AddCommand(workbenchesAssetsVulnerabilitiesCmd)
+	workbenchesAssetsVulnerabilitiesCmd.AddCommand(workbenchesAssetsVulnerabilitiesListCmd)
+	workbenchesAssetsVulnerabilitiesCmd.AddCommand(workbenchesAssetsVulnerabilitiesInfoCmd)
+
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesCmd)
-	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
-	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesOutputsCmd)
-	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesFiltersCmd)
+	workbenchesVulnerabilitiesCmd.AddCommand(workbenchesVulnerabilitiesListCmd)
+	workbenchesVulnerabilitiesCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
+	workbenchesVulnerabilitiesCmd.AddCommand(workbenchesVulnerabilitiesOutputsCmd)
+	workbenchesVulnerabilitiesCmd.AddCommand(workbenchesVulnerabilitiesFiltersCmd)
 }
