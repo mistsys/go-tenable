@@ -14,9 +14,10 @@ import (
 )
 
 var workbenchesCmd = &cobra.Command{
-	Use:   "workbenches COMMAND",
-	Short: "Use the Tenable workbenches API",
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "workbenches COMMAND",
+	Short:   "Use the Tenable workbenches API",
+	Args:    cobra.MinimumNArgs(1),
+	Aliases: []string{"wb"},
 }
 
 // Assets commands
@@ -27,8 +28,9 @@ var workbenchesAssetsCmd = &cobra.Command{
 }
 
 var workbenchesAssetsListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List (up to) 5000 assets",
+	Use:     "list",
+	Short:   "List (up to) 5000 assets",
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Assets(context.Background())
 		if err != nil {
@@ -53,15 +55,17 @@ var workbenchesAssetsInfoCmd = &cobra.Command{
 
 // Assets commands
 var workbenchesAssetsVulnerabilitiesCmd = &cobra.Command{
-	Use:   "vulnerabilities",
-	Short: "Use the Tenable workbenches assets vulnerabilities API",
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "vulnerabilities",
+	Short:   "Use the Tenable workbenches assets vulnerabilities API",
+	Args:    cobra.MinimumNArgs(1),
+	Aliases: []string{"vulns"},
 }
 
 var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
-	Use:   "list ID",
-	Short: "List (up to) 5000 of the vulnerabilities for an asset",
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "list ID",
+	Short:   "List (up to) 5000 of the vulnerabilities for an asset",
+	Args:    cobra.MinimumNArgs(1),
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		for i := 0; i < len(args); i++ {
 			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background(), args[i])
@@ -88,14 +92,16 @@ var workbenchesAssetsVulnerabilitiesInfoCmd = &cobra.Command{
 
 // Vulnerabilities commands
 var workbenchesVulnerabilitiesCmd = &cobra.Command{
-	Use:   "vulnerabilities",
-	Short: "Use the Tenable workbenches/vulnerabilities API",
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "vulnerabilities",
+	Short:   "Use the Tenable workbenches/vulnerabilities API",
+	Args:    cobra.MinimumNArgs(1),
+	Aliases: []string{"vulns"},
 }
 
 var workbenchesVulnerabilitiesListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List (up to) the first 5000 vulnerabilities recorded.",
+	Use:     "list",
+	Short:   "List (up to) the first 5000 vulnerabilities recorded.",
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Vulnerabilities(context.Background())
 		if err != nil {
