@@ -2,7 +2,6 @@ package client
 
 import (
 	"net/http"
-	"net/url"
 	"reflect"
 	"testing"
 )
@@ -19,7 +18,7 @@ func TestTenableClient_NewRequest(t *testing.T) {
 	type args struct {
 		method      string
 		relativeUrl string
-		data        url.Values
+		body        interface{}
 	}
 	tests := []struct {
 		name    string
@@ -39,7 +38,7 @@ func TestTenableClient_NewRequest(t *testing.T) {
 			args: args{
 				method:      "GET",
 				relativeUrl: "/foo",
-				data:        nil,
+				body:        nil,
 			},
 			want: &http.Request{
 				Header: map[string][]string{
@@ -60,7 +59,7 @@ func TestTenableClient_NewRequest(t *testing.T) {
 			args: args{
 				method:      "GET",
 				relativeUrl: "/foo",
-				data:        nil,
+				body:        nil,
 			},
 			want: &http.Request{
 				Header: map[string][]string{
@@ -80,7 +79,7 @@ func TestTenableClient_NewRequest(t *testing.T) {
 				Debug:       tt.fields.Debug,
 				impersonate: tt.fields.impersonate,
 			}
-			got, err := tc.NewRequest(tt.args.method, tt.args.relativeUrl, tt.args.data)
+			got, err := tc.NewRequest(tt.args.method, tt.args.relativeUrl, tt.args.body)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("TenableClient.NewRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
