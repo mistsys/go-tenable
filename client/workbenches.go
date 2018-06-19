@@ -195,29 +195,27 @@ type VulnerabilityInfo struct {
 	} `json:"info"`
 }
 
-type VulnerabilityOutput []struct {
-	ApplicationProtocol string `json:"application_protocol"`
-	Port                int    `json:"port"`
-	TransportProtocol   string `json:"transport_protocol"`
-	// not the same as the usual Asset, so no refactor here
-	Assets []struct {
-		Hostname string `json:"hostname"`
-		ID       string `json:"id"`
-		UUID     string `json:"uuid"`
-	} `json:"assets"`
-	Severity int `json:"severity"`
-}
-
-type PluginVulnerabilityOutput struct {
+type VulnerabilityOutput struct {
 	PluginOutput string `json:"plugin_output"`
 	States       []struct {
-		Name    string                `json:"name"`
-		Results []VulnerabilityOutput `json:"results"`
+		Name    string `json:"name"`
+		Results []struct {
+			ApplicationProtocol string `json:"application_protocol"`
+			Port                int    `json:"port"`
+			TransportProtocol   string `json:"transport_protocol"`
+			// not the same as the usual Asset, so no refactor here
+			Assets []struct {
+				Hostname string `json:"hostname"`
+				ID       string `json:"id"`
+				UUID     string `json:"uuid"`
+			} `json:"assets"`
+			Severity int `json:"severity"`
+		} `json:"results"`
 	} `json:"states"`
 }
 
 type VulnerabilityOutputs struct {
-	Outputs []PluginVulnerabilityOutput `json:"outputs"`
+	Outputs []VulnerabilityOutput `json:"outputs"`
 }
 
 type VulnerabilitiesFilters struct {
@@ -313,25 +311,28 @@ func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*A
 	return info, response, err
 }
 
-func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilities, *Response, error) {
+// List up to the first 5000 vulnerabilities recorded for a single asset . NB this is not `AssetsVulnerabilities` (multiple assets)
+func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities", assetId)
-	vulns := &AssetVulnerabilities{}
+	vulns := &AssetVulnerabilityInfo{}
 	response, err := s.client.Get(ctx, u, nil, nil, vulns)
 	return vulns, response, err
 }
 
-func (s *WorkbenchesService) AssetsVulnerabilitiesInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
+// Get the details for a vulnerability recorded on a given asset
+func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId)
 	vulns := &AssetVulnerabilityInfo{}
 	response, err := s.client.Get(ctx, u, nil, nil, vulns)
 	return vulns, response, err
 }
 
-func (s *WorkbenchesService) VulnerabilitiesFilters(ctx context.Context) (*VulnerabilitiesFilters, *Response, error) {
-	u := fmt.Sprintf("filters/workbenches/vulnerabilities")
-	filters := &VulnerabilitiesFilters{}
-	response, err := s.client.Get(ctx, u, nil, nil, filters)
-	return filters, response, err
+// Get the vulnerability outputs for a single plugin for a single asset
+func (s *WorkbenchesService) AssetVulnerabilityOutputs(ctx context.Context, assetId string, pluginId string) (*VulnerabilityOutputs, *Response, error) {
+	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/outputs", assetId, pluginId)
+	vulns := &VulnerabilityOutputs{}
+	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	return vulns, response, err
 }
 
 // TODO the struct names will collide with scan exports, BUT they might be the same structure, and thus be common

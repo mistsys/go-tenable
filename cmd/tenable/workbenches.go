@@ -86,18 +86,18 @@ var workbenchesAssetVulnerabilityInfoCmd = &cobra.Command{
 	},
 }
 
-// var workbenchesAssetVulnerabilityOutputsCmd = &cobra.Command{
-// 	Use:   "outputs assetId pluginId",
-// 	Short: "Get the vulnerability outputs for a single plugin on a single asset",
-// 	Args:  cobra.MinimumNArgs(2),
-// 	Run: func(cmd *cobra.Command, args []string) {
-// 		_, response, err := client.Workbenches.AssetVulnerabilityOutputs(context.Background(), args[0], args[1])
-// 		if err != nil {
-// 			log.Println("Error getting vulnerability outputs", err)
-// 		}
-// 		fmt.Printf(response.BodyJson())
-// 	},
-// }
+var workbenchesAssetVulnerabilityOutputsCmd = &cobra.Command{
+	Use:   "outputs assetId pluginId",
+	Short: "Get the vulnerability outputs for a single plugin on a single asset",
+	Args:  cobra.MinimumNArgs(2),
+	Run: func(cmd *cobra.Command, args []string) {
+		_, response, err := client.Workbenches.AssetVulnerabilityOutputs(context.Background(), args[0], args[1])
+		if err != nil {
+			log.Println("Error getting vulnerability outputs", err)
+		}
+		fmt.Printf(response.BodyJson())
+	},
+}
 
 // Vulnerabilities commands
 var workbenchesVulnerabilitiesRootCmd = &cobra.Command{
@@ -187,6 +187,7 @@ func init() {
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesRootCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesListCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityInfoCmd)
+	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityOutputsCmd)
 
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesCmd)
