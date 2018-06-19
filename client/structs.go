@@ -1,28 +1,5 @@
 package client
 
-import (
-	"time"
-)
-
-type Asset struct {
-	ID       string    `json:"id"`
-	HasAgent bool      `json:"has_agent"`
-	LastSeen time.Time `json:"last_seen"`
-	Sources  []struct {
-		Name      string    `json:"name"`
-		FirstSeen time.Time `json:"first_seen"`
-		LastSeen  time.Time `json:"last_seen"`
-	} `json:"sources"`
-	// NOTE these types are just observed... the API docs don't specify a type
-	Ipv4            []string `json:"ipv4"`
-	Ipv6            []string `json:"ipv6"`
-	Fqdn            []string `json:"fqdn"`
-	NetbiosName     []string `json:"netbios_name"`
-	OperatingSystem []string `json:"operating_system"`
-	AgentName       []string `json:"agent_name"`
-	MacAddress      []string `json:"mac_address"`
-}
-
 type Host struct {
 	AssetID             int    `json:"asset_id"`
 	Critical            int    `json:"critical"`

@@ -12,6 +12,25 @@ type WorkbenchesService service
 
 // RESPONSE STRUCTS
 
+type Asset struct {
+	ID       string    `json:"id"`
+	HasAgent bool      `json:"has_agent"`
+	LastSeen time.Time `json:"last_seen"`
+	Sources  []struct {
+		Name      string    `json:"name"`
+		FirstSeen time.Time `json:"first_seen"`
+		LastSeen  time.Time `json:"last_seen"`
+	} `json:"sources"`
+	// NOTE these types are just observed... the API docs don't specify a type
+	Ipv4            []string `json:"ipv4"`
+	Ipv6            []string `json:"ipv6"`
+	Fqdn            []string `json:"fqdn"`
+	NetbiosName     []string `json:"netbios_name"`
+	OperatingSystem []string `json:"operating_system"`
+	AgentName       []string `json:"agent_name"`
+	MacAddress      []string `json:"mac_address"`
+}
+
 type Assets struct {
 	Assets []Asset `json:"assets"`
 	Total  int     `json:"total"`
@@ -86,6 +105,14 @@ type AssetInfo struct {
 		QualysHostID            []string `json:"qualys_host_id"`
 		ServicenowSysid         []string `json:"servicenow_sysid"`
 	} `json:"info"`
+}
+
+// I thought about calling this `AssetsWithVulnerabilities` since that's what it is, but that's not what Tenable calls it
+// and I figure, I already follow their naming scheme everywhere else...
+// Oh, and why does this response call the asset count something different than plain ol' Assets? Who knows!
+type AssetsVulnerabilities struct {
+	Assets          []Asset `json:"assets"`
+	TotalAssetCount int     `json:"total_asset_count"`
 }
 
 type AssetVulnerabilities struct {
@@ -168,27 +195,29 @@ type VulnerabilityInfo struct {
 	} `json:"info"`
 }
 
-type VulnerabilityOutput struct {
+type VulnerabilityOutput []struct {
+	ApplicationProtocol string `json:"application_protocol"`
+	Port                int    `json:"port"`
+	TransportProtocol   string `json:"transport_protocol"`
+	// not the same as the usual Asset, so no refactor here
+	Assets []struct {
+		Hostname string `json:"hostname"`
+		ID       string `json:"id"`
+		UUID     string `json:"uuid"`
+	} `json:"assets"`
+	Severity int `json:"severity"`
+}
+
+type PluginVulnerabilityOutput struct {
 	PluginOutput string `json:"plugin_output"`
 	States       []struct {
-		Name    string `json:"name"`
-		Results []struct {
-			ApplicationProtocol string `json:"application_protocol"`
-			Port                int    `json:"port"`
-			TransportProtocol   string `json:"transport_protocol"`
-			// not the same as the usual Asset, so no refactor here
-			Assets []struct {
-				Hostname string `json:"hostname"`
-				ID       string `json:"id"`
-				UUID     string `json:"uuid"`
-			} `json:"assets"`
-			Severity int `json:"severity"`
-		} `json:"results"`
+		Name    string                `json:"name"`
+		Results []VulnerabilityOutput `json:"results"`
 	} `json:"states"`
 }
 
 type VulnerabilityOutputs struct {
-	Outputs []VulnerabilityOutput `json:"outputs"`
+	Outputs []PluginVulnerabilityOutput `json:"outputs"`
 }
 
 type VulnerabilitiesFilters struct {
@@ -231,12 +260,21 @@ type WorkbenchExportRequestOpts struct {
 	AssetId          string `url:"asset_id,omitempty"`
 }
 
+// List up to the first 5000 vulnerabilities recorded. Use the export-request API if you need more than that
 func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*Vulnerabilities, *Response, error) {
 	props := &Vulnerabilities{}
 	response, err := s.client.Get(ctx, "workbenches/vulnerabilities", nil, nil, props)
 	return props, response, err
 }
 
+// Get the available filters for the vulnerabilities workbench
+func (s *WorkbenchesService) VulnerabilitiesFilters(ctx context.Context) (*VulnerabilitiesFilters, *Response, error) {
+	filters := &VulnerabilitiesFilters{}
+	response, err := s.client.Get(ctx, "filters/workbenches/vulnerabilities", nil, nil, filters)
+	return filters, response, err
+}
+
+// Get the vulnerability details for a plugin
 func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId string) (*VulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/vulnerabilities/%s/info", pluginId)
 	info := &VulnerabilityInfo{}
@@ -244,19 +282,30 @@ func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId s
 	return info, response, err
 }
 
-func (s *WorkbenchesService) VulnerabilitiesOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
+// Get the vulnerability outputs for a given plugin TODO wat mean
+func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
 	u := fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", pluginId)
 	outputs := &VulnerabilityOutputs{}
 	response, err := s.client.Get(ctx, u, nil, nil, outputs)
 	return outputs, response, err
 }
 
+// List up to 5000 assets
 func (s *WorkbenchesService) Assets(ctx context.Context) (*Assets, *Response, error) {
 	assets := &Assets{}
 	response, err := s.client.Get(ctx, "workbenches/assets", nil, nil, assets)
 	return assets, response, err
 }
 
+// List up to 5000 assets with vulnerabilities. NB this is not `AssetVulnerabilities` (one asset)
+func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context) (*AssetsVulnerabilities, *Response, error) {
+	u := fmt.Sprintf("workbenches/assets/vulnerabilities")
+	vulns := &AssetsVulnerabilities{}
+	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	return vulns, response, err
+}
+
+// Get general information about an asset
 func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*AssetInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/info", assetId)
 	info := &AssetInfo{}
