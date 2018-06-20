@@ -261,14 +261,14 @@ type WorkbenchExportRequestOpts struct {
 // List up to the first 5000 vulnerabilities recorded. Use the export-request API if you need more than that
 func (s *WorkbenchesService) Vulnerabilities(ctx context.Context) (*Vulnerabilities, *Response, error) {
 	props := &Vulnerabilities{}
-	response, err := s.client.Get(ctx, "workbenches/vulnerabilities", nil, nil, props)
+	response, err := s.client.Get(ctx, "workbenches/vulnerabilities", nil, props)
 	return props, response, err
 }
 
 // Get the available filters for the vulnerabilities workbench
 func (s *WorkbenchesService) VulnerabilitiesFilters(ctx context.Context) (*VulnerabilitiesFilters, *Response, error) {
 	filters := &VulnerabilitiesFilters{}
-	response, err := s.client.Get(ctx, "filters/workbenches/vulnerabilities", nil, nil, filters)
+	response, err := s.client.Get(ctx, "filters/workbenches/vulnerabilities", nil, filters)
 	return filters, response, err
 }
 
@@ -276,7 +276,7 @@ func (s *WorkbenchesService) VulnerabilitiesFilters(ctx context.Context) (*Vulne
 func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId string) (*VulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/vulnerabilities/%s/info", pluginId)
 	info := &VulnerabilityInfo{}
-	response, err := s.client.Get(ctx, u, nil, nil, info)
+	response, err := s.client.Get(ctx, u, nil, info)
 	return info, response, err
 }
 
@@ -284,14 +284,14 @@ func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId s
 func (s *WorkbenchesService) VulnerabilityOutputs(ctx context.Context, pluginId string) (*VulnerabilityOutputs, *Response, error) {
 	u := fmt.Sprintf("workbenches/vulnerabilities/%s/outputs", pluginId)
 	outputs := &VulnerabilityOutputs{}
-	response, err := s.client.Get(ctx, u, nil, nil, outputs)
+	response, err := s.client.Get(ctx, u, nil, outputs)
 	return outputs, response, err
 }
 
 // List up to 5000 assets
 func (s *WorkbenchesService) Assets(ctx context.Context) (*Assets, *Response, error) {
 	assets := &Assets{}
-	response, err := s.client.Get(ctx, "workbenches/assets", nil, nil, assets)
+	response, err := s.client.Get(ctx, "workbenches/assets", nil, assets)
 	return assets, response, err
 }
 
@@ -299,7 +299,7 @@ func (s *WorkbenchesService) Assets(ctx context.Context) (*Assets, *Response, er
 func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context) (*AssetsVulnerabilities, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/vulnerabilities")
 	vulns := &AssetsVulnerabilities{}
-	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	response, err := s.client.Get(ctx, u, nil, vulns)
 	return vulns, response, err
 }
 
@@ -307,7 +307,7 @@ func (s *WorkbenchesService) AssetsVulnerabilities(ctx context.Context) (*Assets
 func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*AssetInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/info", assetId)
 	info := &AssetInfo{}
-	response, err := s.client.Get(ctx, u, nil, nil, info)
+	response, err := s.client.Get(ctx, u, nil, info)
 	return info, response, err
 }
 
@@ -315,7 +315,7 @@ func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*A
 func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities", assetId)
 	vulns := &AssetVulnerabilityInfo{}
-	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	response, err := s.client.Get(ctx, u, nil, vulns)
 	return vulns, response, err
 }
 
@@ -323,7 +323,7 @@ func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId s
 func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId string, pluginId string) (*AssetVulnerabilityInfo, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/info", assetId, pluginId)
 	vulns := &AssetVulnerabilityInfo{}
-	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	response, err := s.client.Get(ctx, u, nil, vulns)
 	return vulns, response, err
 }
 
@@ -331,14 +331,14 @@ func (s *WorkbenchesService) AssetVulnerabilityInfo(ctx context.Context, assetId
 func (s *WorkbenchesService) AssetVulnerabilityOutputs(ctx context.Context, assetId string, pluginId string) (*VulnerabilityOutputs, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities/%s/outputs", assetId, pluginId)
 	vulns := &VulnerabilityOutputs{}
-	response, err := s.client.Get(ctx, u, nil, nil, vulns)
+	response, err := s.client.Get(ctx, u, nil, vulns)
 	return vulns, response, err
 }
 
 // TODO the struct names will collide with scan exports, BUT they might be the same structure, and thus be common
 func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest, *Response, error) {
 	exp := &ExportRequest{}
-	response, err := s.client.Get(ctx, "workbenches/export", nil, nil, exp)
+	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
 	return exp, response, err
 }
 
@@ -346,7 +346,7 @@ func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest,
 func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*ExportStatus, *Response, error) {
 	u := fmt.Sprintf("workbenches/export/%s/status", fileId)
 	exp := &ExportStatus{}
-	response, err := s.client.Get(ctx, u, nil, nil, exp)
+	response, err := s.client.Get(ctx, u, nil, exp)
 	return exp, response, err
 }
 
@@ -354,6 +354,6 @@ func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*
 // one big ExportDownload that requests, polls, and then hands you a link?
 // func (s *WorkbenchesService) ExportDownload(ctx context.Context) (*ExportRequest, *Response, error) {
 // 	exp := &ExportRequest{}
-// 	response, err := s.client.Get(ctx, "workbenches/export", nil, nil, exp)
+// 	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
 // 	return exp, response, err
 // }

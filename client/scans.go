@@ -114,14 +114,14 @@ type ScanExportDownload struct {
 
 func (s *ScansService) List(ctx context.Context) (*ScansList, *Response, error) {
 	list := &ScansList{}
-	response, err := s.client.Get(ctx, "scans", nil, nil, list)
+	response, err := s.client.Get(ctx, "scans", nil, list)
 	return list, response, err
 }
 
 func (s *ScansService) Detail(ctx context.Context, scanId string) (*ScanDetail, *Response, error) {
 	u := fmt.Sprintf("scans/%s", scanId)
 	status := &ScanDetail{}
-	response, err := s.client.Get(ctx, u, nil, nil, status)
+	response, err := s.client.Get(ctx, u, nil, status)
 	return status, response, err
 }
 

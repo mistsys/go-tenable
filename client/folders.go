@@ -21,6 +21,6 @@ type FoldersList struct {
 
 func (s *FoldersService) List(ctx context.Context) (*FoldersList, *Response, error) {
 	list := &FoldersList{}
-	response, err := s.client.Get(ctx, "folders", nil, nil, list)
+	response, err := s.client.Get(ctx, "folders", nil, list)
 	return list, response, err
 }

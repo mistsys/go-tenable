@@ -142,12 +142,12 @@ func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interfac
 	return response, err
 }
 
-func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, body interface{}, dest interface{}) (*Response, error) {
+func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, dest interface{}) (*Response, error) {
 	u, err := makeUrl(url, opts)
 	if err != nil {
 		return nil, err
 	}
-	// TODO ignoring body for now
+	// nil body because it's a GET request
 	req, err := t.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
 		return nil, err

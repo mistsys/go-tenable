@@ -83,12 +83,12 @@ type ServerProperties struct {
 
 func (s *ServerService) Properties(ctx context.Context) (*ServerProperties, *Response, error) {
 	props := &ServerProperties{}
-	response, err := s.client.Get(ctx, "server/properties", nil, nil, props)
+	response, err := s.client.Get(ctx, "server/properties", nil, props)
 	return props, response, err
 }
 
 func (s *ServerService) Status(ctx context.Context) (*ServerStatus, *Response, error) {
 	status := &ServerStatus{}
-	response, err := s.client.Get(ctx, "server/status", nil, nil, status)
+	response, err := s.client.Get(ctx, "server/status", nil, status)
 	return status, response, err
 }
