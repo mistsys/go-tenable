@@ -1,5 +1,3 @@
-// workbenches, not representing a resource in its own right, does not prepend Workbenches to the resource structs
-// cf the other endpoint implementations
 package client
 
 import (
@@ -10,13 +8,16 @@ import (
 
 type WorkbenchesService service
 
+// Workbenches, not representing an independent resource in its own right, does not prepend Workbenches to the resource structs
+// cf the other endpoint implementations, which do
+
 // RESPONSE STRUCTS
 
 type Asset struct {
-	ID       string    `json:"id"`
-	HasAgent bool      `json:"has_agent"`
-	LastSeen time.Time `json:"last_seen"`
-	Sources  []struct {
+	ID       string     `json:"id"`
+	HasAgent bool       `json:"has_agent"`
+	LastSeen time.Time  `json:"last_seen"`
+	Sources  []struct { // refactorable; see assetinfo, maybe others
 		Name      string    `json:"name"`
 		FirstSeen time.Time `json:"first_seen"`
 		LastSeen  time.Time `json:"last_seen"`
@@ -107,25 +108,21 @@ type AssetInfo struct {
 	} `json:"info"`
 }
 
-// I thought about calling this `AssetsWithVulnerabilities` since that's what it is, but that's not what Tenable calls it
-// and I figure, I already follow their naming scheme everywhere else...
-// Oh, and why does this response call the asset count something different than plain ol' Assets? Who knows!
+// this is a list of assets that have known vulnerabilities
 type AssetsVulnerabilities struct {
 	Assets          []Asset `json:"assets"`
 	TotalAssetCount int     `json:"total_asset_count"`
 }
 
+// this is a list of vulnerabilities for a specific asset
 type AssetVulnerabilities struct {
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
 	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
 	TotalAssetCount         int             `json:"total_asset_count"`
 }
 
-type AssetVulnerabilityInfo struct {
-	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
-	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
-	TotalAssetCount         int             `json:"total_asset_count"`
-}
+// this is a list of vulnerabilities for a specific plugin on a specific asset
+type AssetVulnerabilityInfo VulnerabilityInfo
 
 type Vulnerabilities struct {
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
@@ -133,6 +130,9 @@ type Vulnerabilities struct {
 	TotalAssetCount         int             `json:"total_asset_count"`
 }
 
+// this is a list of vulnerabilities for a specific plugin
+// (maybe rename to PluginVulnerabilityInfo? I'm keeping the naming consistent with the Tenable docs, which tends to use
+// this kind of ambiguous naming)
 type VulnerabilityInfo struct {
 	// TODO rename
 	Info struct {
@@ -342,6 +342,7 @@ func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest,
 	return exp, response, err
 }
 
+// Query the status for a particular pending export file. When it's ready, the .status field will be "ready"
 func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*ExportStatus, *Response, error) {
 	u := fmt.Sprintf("workbenches/export/%s/status", fileId)
 	exp := &ExportStatus{}
