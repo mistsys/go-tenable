@@ -1,12 +1,11 @@
-// TODO when getting details about multiple specific resources, need to pack em up into a json array
-// TODO need to consider that the tenable API naming kind of sucks, and it might be more natural to use
-// a different command hierarchy than obviously implied by the API. e.g. instead of assets, asset-info id, asset-vulnerabilities id,
-// maybe assets should just be its own subcommand (default list) and maybe you get something like assets [list], assets info id...,
-// assets vulnerabilities id...
+// nice things to have from this point are
+// list all assets *and associated vulnerabilities* in one command
+// carve out the low utility commands, or leave them but mark them as interfaces to internal/intermediate APIs
 package tenable
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -61,15 +60,28 @@ var workbenchesAssetsVulnerabilitiesRootCmd = &cobra.Command{
 }
 
 var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List (up to) 5000 assets with vulnerabilities",
+	Use:     "list [ID..]",
+	Short:   "List (up to) 5000 assets with vulnerabilities. If asset ID(s) are provided, list vulnerabilities for the specified assets",
 	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
-		_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background())
-		if err != nil {
-			log.Println("Error getting vulnerabilites", err)
+		if len(args) > 0 {
+			// want vulns specific to the given assets; TODO either restrict to one ID or additionally output the ID in some
+			// meaningful way
+			for i := 0; i < len(args); i++ {
+				// note the function name: this is a singular asset, the other branch is plural
+				_, response, err := client.Workbenches.AssetVulnerabilities(context.Background(), args[i])
+				if err != nil {
+					log.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
+				}
+				fmt.Printf(response.BodyJson())
+			}
+		} else {
+			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background())
+			if err != nil {
+				log.Println("Error getting vulnerabilites", err)
+			}
+			fmt.Printf(response.BodyJson())
 		}
-		fmt.Printf(response.BodyJson())
 	},
 }
 

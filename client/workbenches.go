@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -116,6 +117,7 @@ type AssetsVulnerabilities struct {
 
 // this is a list of vulnerabilities for a specific asset
 type AssetVulnerabilities struct {
+	AssetId                 string
 	Vulnerabilities         []Vulnerability `json:"vulnerabilities"`
 	TotalVulnerabilityCount int             `json:"total_vulnerability_count"`
 	TotalAssetCount         int             `json:"total_asset_count"`
@@ -134,6 +136,7 @@ type Vulnerabilities struct {
 // (maybe rename to PluginVulnerabilityInfo? I'm keeping the naming consistent with the Tenable docs, which tends to use
 // this kind of ambiguous naming)
 type VulnerabilityInfo struct {
+	PluginId string
 	// TODO rename
 	Info struct {
 		Count       int    `json:"count"`
@@ -157,10 +160,8 @@ type VulnerabilityInfo struct {
 		ReferenceInformation []struct {
 			Name string `json:"name"`
 			URL  string `json:"url,omitempty"`
-			// TODO .values is occasionally int, string, int string. This probably happens elsewhere,
-			// so that lenient unmarshal in util.go may need to be extended somehow to cover these cases.
-			// Or just somehow handle more gracefully
-			Values []string `json:"values"`
+			// the API is very inconsistent with the return type here
+			Values []interface{} `json:"values"`
 		} `json:"reference_information"`
 		// NOTE api defines these 'interface' fields as just 'object'
 		RiskInformation struct {
@@ -277,6 +278,7 @@ func (s *WorkbenchesService) VulnerabilitiesInfo(ctx context.Context, pluginId s
 	u := fmt.Sprintf("workbenches/vulnerabilities/%s/info", pluginId)
 	info := &VulnerabilityInfo{}
 	response, err := s.client.Get(ctx, u, nil, info)
+	info.PluginId = pluginId
 	return info, response, err
 }
 
@@ -312,10 +314,11 @@ func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*A
 }
 
 // List up to the first 5000 vulnerabilities recorded for a single asset . NB this is not `AssetsVulnerabilities` (multiple assets)
-func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilityInfo, *Response, error) {
+func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilities, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities", assetId)
-	vulns := &AssetVulnerabilityInfo{}
+	vulns := &AssetVulnerabilities{}
 	response, err := s.client.Get(ctx, u, nil, vulns)
+	vulns.AssetId = assetId
 	return vulns, response, err
 }
 

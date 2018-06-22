@@ -40,7 +40,7 @@ type History struct {
 type Vulnerability struct {
 	Count              int    `json:"count"`
 	PluginFamily       string `json:"plugin_family"`
-	PluginID           int    `json:"plugin_id"`
+	PluginId           int    `json:"plugin_id"`
 	PluginName         string `json:"plugin_name"`
 	VulnerabilityState string `json:"vulnerability_state"`
 	AcceptedCount      int    `json:"accepted_count"`
