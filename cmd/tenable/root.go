@@ -62,7 +62,7 @@ func initConfig() {
 		viper.SetConfigFile(configFile)
 	} else {
 		viper.SetConfigName("config")
-		viper.AddConfigPath("$HOME/.config/go-tenable/")
+		viper.AddConfigPath("$HOME/.config/tenable/")
 		viper.AddConfigPath(".")
 	}
 
