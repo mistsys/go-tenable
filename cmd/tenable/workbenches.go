@@ -189,7 +189,33 @@ var workbenchesExportCmd = &cobra.Command{
 	},
 }
 
-// TODO this could use a naming change, eh?
+// More powerful commands
+
+var allAssetInfoCmd = &cobra.Command{
+	Use:     "listv ID",
+	Short:   "List all vulnerability info for a given asset",
+	Aliases: []string{"lsv"},
+	Args:    cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		assetId := args[0]
+		allVulns, err := client.Workbenches.AllAssetInfo(context.Background(), assetId)
+		if err != nil {
+			log.Println("Error getting vulnerability info for %s, %v", assetId, err)
+		}
+		b, _ := json.MarshalIndent(allVulns, "  ", "  ")
+		fmt.Println(string(b))
+		j := &JiraTicket{
+			Header: defaultJiraTicketHeaders,
+			Source: allVulns,
+		}
+		ticket, err := j.Produce()
+		if err != nil {
+			log.Println("Failed to produce jira ticket!", err)
+		}
+		fmt.Println(ticket)
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(workbenchesCmd)
 

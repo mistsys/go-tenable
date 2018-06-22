@@ -360,3 +360,37 @@ func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*
 // 	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
 // 	return exp, response, err
 // }
+
+type AllAssetInfo struct {
+	AssetId         string
+	Vulnerabilities []*AssetVulnerabilityInfo
+}
+
+func (a *AllAssetInfo) ToRecords() [][]string {
+	var ret [][]string
+	for _, vuln := range a.Vulnerabilities {
+		record := []string{a.AssetId, vuln.Info.Synopsis, "Bug", "Open", "Security"}
+		ret = append(ret, record)
+	}
+	return ret
+}
+
+func (s *WorkbenchesService) AllAssetInfo(ctx context.Context, assetId string) (*AllAssetInfo, error) {
+	var vulnsInfo []*AssetVulnerabilityInfo
+	ret := &AllAssetInfo{AssetId: assetId}
+	vulns, _, err := s.AssetVulnerabilities(ctx, assetId)
+	if err != nil {
+		return ret, err
+	}
+	for _, vuln := range vulns.Vulnerabilities {
+		pluginId := strconv.FormatInt(int64(vuln.PluginId), 10)
+		v, _, err := s.AssetVulnerabilityInfo(ctx, assetId, pluginId)
+		if err != nil {
+			return ret, err
+		}
+		vulnsInfo = append(vulnsInfo, v)
+	}
+
+	ret.Vulnerabilities = vulnsInfo
+	return ret, nil
+}
