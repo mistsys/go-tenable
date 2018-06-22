@@ -369,6 +369,7 @@ type AllAssetInfo struct {
 	Vulnerabilities []*AssetVulnerabilityInfo
 }
 
+// bad place for this
 func (a *AllAssetInfo) ToRecords() [][]string {
 	var ret [][]string
 	var assetName string
@@ -382,6 +383,7 @@ func (a *AllAssetInfo) ToRecords() [][]string {
 
 	for _, vuln := range a.Vulnerabilities {
 		description := fmt.Sprintf(`%s`, vuln.Info.Description)
+		// nice to have customizable heading; see command as well
 		record := []string{summary, description, "Bug", "Open", "test"}
 		ret = append(ret, record)
 	}

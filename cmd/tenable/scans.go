@@ -14,6 +14,7 @@ var scansCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 }
 
+// TODO the usage interface should match the workbenches one; ie, split this in two (scans info?)
 var scansListCmd = &cobra.Command{
 	Use:   "list [ID...]",
 	Short: "List scans. Optionally specify specific scan IDs to view details.",

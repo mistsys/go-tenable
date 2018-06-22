@@ -74,12 +74,29 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 					fmt.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
 					os.Exit(1)
 				}
-				b, err := json.MarshalIndent(allVulns, "  ", "  ")
-				if err != nil {
-					fmt.Printf("Error formatting JSON for vulnerabilities for %s, %v", args[i], err)
-					os.Exit(1)
+				// TODO this makes a full csv for each asset, but you really want them all in one CSV. need to do 3 things
+				// 1 - rip jira code out into a util somewhere for reuse in other commands
+				// 2 - yeah, properly handle lists or whatever
+				// 3 - make a general output func for use in all commands
+				if outputJira {
+					j := &JiraTicket{
+						Header: defaultJiraTicketHeaders,
+						Source: allVulns,
+					}
+					ticket, err := j.Produce()
+					if err != nil {
+						fmt.Println("Failed to produce jira ticket!", err)
+						os.Exit(1)
+					}
+					fmt.Println(ticket)
+				} else {
+					b, err := json.MarshalIndent(allVulns, "  ", "  ")
+					if err != nil {
+						fmt.Printf("Error formatting JSON for vulnerabilities for %s, %v", args[i], err)
+						os.Exit(1)
+					}
+					fmt.Printf(string(b))
 				}
-				fmt.Printf(string(b))
 			}
 		} else {
 			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background())
@@ -202,35 +219,6 @@ var workbenchesExportCmd = &cobra.Command{
 	},
 }
 
-// More powerful commands
-
-var allAssetInfoCmd = &cobra.Command{
-	Use:     "listv ID",
-	Short:   "List all vulnerability info for a given asset",
-	Aliases: []string{"lsv"},
-	Args:    cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		assetId := args[0]
-		allVulns, err := client.Workbenches.AssetVulnerabilityInfoList(context.Background(), assetId)
-		if err != nil {
-			fmt.Printf("Error getting vulnerability info for %s, %v\n", assetId, err)
-			os.Exit(1)
-		}
-		// b, _ := json.MarshalIndent(allVulns, "  ", "  ")
-		// fmt.Println(string(b))
-		j := &JiraTicket{
-			Header: defaultJiraTicketHeaders,
-			Source: allVulns,
-		}
-		ticket, err := j.Produce()
-		if err != nil {
-			fmt.Println("Failed to produce jira ticket!", err)
-			os.Exit(1)
-		}
-		fmt.Println(ticket)
-	},
-}
-
 func init() {
 	rootCmd.AddCommand(workbenchesCmd)
 
@@ -241,8 +229,6 @@ func init() {
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesListCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityInfoCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityOutputsCmd)
-
-	workbenchesAssetsRootCmd.AddCommand(allAssetInfoCmd)
 
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesCmd)

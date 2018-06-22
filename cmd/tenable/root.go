@@ -14,6 +14,7 @@ var (
 	configFile string
 	client     *tenableClient.TenableClient
 	verbose    bool
+	outputJira bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -46,6 +47,7 @@ func init() {
 	rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
 	rootCmd.PersistentFlags().String("filters", "", "Filters") // TODO doc
 
+	rootCmd.PersistentFlags().BoolVarP(&outputJira, "jira", "j", false, "Produce CSV output suitable for JIRA import. Not available for all commands.")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Produce verbose output. Debug implies verbose.")
 	rootCmd.PersistentFlags().Bool("debug", false, "Run in debug mode (dump raw request bodies)")
 
