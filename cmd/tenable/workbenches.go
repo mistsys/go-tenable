@@ -5,9 +5,9 @@ package tenable
 
 import (
 	"context"
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
-	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -33,7 +33,8 @@ var workbenchesAssetsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Assets(context.Background())
 		if err != nil {
-			log.Println("Error getting assets", err)
+			fmt.Println("Error getting assets:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 	},
@@ -46,7 +47,8 @@ var workbenchesAssetsInfoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetsInfo(context.Background(), args[0])
 		if err != nil {
-			log.Println("Error getting asset info", err)
+			fmt.Println("Error getting asset info:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 	},
@@ -71,14 +73,16 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 				// note the function name: this is a singular asset, the other branch is plural
 				_, response, err := client.Workbenches.AssetVulnerabilities(context.Background(), args[i])
 				if err != nil {
-					log.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
+					fmt.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
+					os.Exit(1)
 				}
 				fmt.Printf(response.BodyJson())
 			}
 		} else {
 			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background())
 			if err != nil {
-				log.Println("Error getting vulnerabilites", err)
+				fmt.Println("Error getting vulnerabilites:", err)
+				os.Exit(1)
 			}
 			fmt.Printf(response.BodyJson())
 		}
@@ -92,7 +96,8 @@ var workbenchesAssetVulnerabilityInfoCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetVulnerabilityInfo(context.Background(), args[0], args[1])
 		if err != nil {
-			log.Println("Error getting vulnerability info", err)
+			fmt.Println("Error getting vulnerability info:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 	},
@@ -105,7 +110,8 @@ var workbenchesAssetVulnerabilityOutputsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetVulnerabilityOutputs(context.Background(), args[0], args[1])
 		if err != nil {
-			log.Println("Error getting vulnerability outputs", err)
+			fmt.Println("Error getting vulnerability outputs:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 	},
@@ -126,7 +132,8 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.Vulnerabilities(context.Background())
 		if err != nil {
-			log.Println("Error getting vulnerabilities list", err)
+			fmt.Println("Error getting vulnerabilities list:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 		fmt.Println(cmd.Flags().Lookup("query").Value)
@@ -141,7 +148,8 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 		for i := 0; i < len(args); i++ {
 			_, response, err := client.Workbenches.VulnerabilitiesInfo(context.Background(), args[i])
 			if err != nil {
-				log.Println("Error getting vulnerability info", err)
+				fmt.Println("Error getting vulnerability info:", err)
+				os.Exit(1)
 			}
 			fmt.Printf(response.BodyJson())
 		}
@@ -156,7 +164,8 @@ var workbenchesVulnerabilityOutputsCmd = &cobra.Command{
 		for i := 0; i < len(args); i++ {
 			_, response, err := client.Workbenches.VulnerabilityOutputs(context.Background(), args[i])
 			if err != nil {
-				log.Println("Error getting vulnerability outputs", err)
+				fmt.Println("Error getting vulnerability outputs:", err)
+				os.Exit(1)
 			}
 			fmt.Printf(response.BodyJson())
 		}
@@ -169,7 +178,8 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.VulnerabilitiesFilters(context.Background())
 		if err != nil {
-			log.Println("Error getting vulnerabilities filters", err)
+			fmt.Println("Error getting vulnerabilities filters:", err)
+			os.Exit(1)
 		}
 		fmt.Printf(response.BodyJson())
 	},
@@ -198,19 +208,21 @@ var allAssetInfoCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		assetId := args[0]
-		allVulns, err := client.Workbenches.AllAssetInfo(context.Background(), assetId)
+		allVulns, err := client.Workbenches.AssetVulnerabilityInfoList(context.Background(), assetId)
 		if err != nil {
-			log.Println("Error getting vulnerability info for %s, %v", assetId, err)
+			fmt.Printf("Error getting vulnerability info for %s, %v\n", assetId, err)
+			os.Exit(1)
 		}
-		b, _ := json.MarshalIndent(allVulns, "  ", "  ")
-		fmt.Println(string(b))
+		// b, _ := json.MarshalIndent(allVulns, "  ", "  ")
+		// fmt.Println(string(b))
 		j := &JiraTicket{
 			Header: defaultJiraTicketHeaders,
 			Source: allVulns,
 		}
 		ticket, err := j.Produce()
 		if err != nil {
-			log.Println("Failed to produce jira ticket!", err)
+			fmt.Println("Failed to produce jira ticket!", err)
+			os.Exit(1)
 		}
 		fmt.Println(ticket)
 	},

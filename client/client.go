@@ -115,11 +115,13 @@ func (t *TenableClient) NewRequest(method string, relativeUrl string, body inter
 }
 
 func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interface{}) (*Response, error) {
-	// TODO we'll need to handle actual http errors too, like 40x. maybe have some sort of CheckResponse for all the error checking
 	res, err := ctxhttp.Do(ctx, t.client, req)
 	response := &Response{RawResponse: res}
-	if err != nil {
+	if err != nil { // hm
 		return response, errors.Wrapf(err, "Failed to do request")
+	}
+	if res.StatusCode >= 400 {
+		return response, errors.New(fmt.Sprintf("Error response from server: %d", res.StatusCode))
 	}
 
 	buf, err := ioutil.ReadAll(res.Body)
