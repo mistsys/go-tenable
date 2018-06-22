@@ -77,18 +77,3 @@ type Remediation struct {
 	Hosts       int    `json:"hosts"`
 	Vulns       int    `json:"vulns"`
 }
-
-// see util.go for info about this
-type FilterQueryOpts struct {
-	Filter []struct {
-		Filter  string `url:"filter"`
-		Quality string `url:"quality"`
-		Value   string `url:"value"`
-	}
-}
-
-type QueryParams struct {
-	Filter  string `json:"filter"`
-	Quality string `json:"quality"`
-	Value   string `json:"value"`
-}
