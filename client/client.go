@@ -22,21 +22,19 @@ import (
 	"github.com/pkg/errors"
 )
 
+// TODO this doesn't add any utility; just use http.Response and nopcloser to get raw body reuse
 type Response struct {
 	RawResponse *http.Response
 	RawBody     []byte
-	// so eventually, this will have stuff for like, pagination, or something
-	// some of the endpoints return a "see more"? though that might be per Resource, not per response
 }
 
-// TODO there can be errors (maybe?); they need to be handled (maybe?)
+// TODO error handling
 func (r *Response) BodyJson() string {
 	var buf bytes.Buffer
-	_ = json.Indent(&buf, r.RawBody, "", "  ")
-	// if err != nil {
-	// 	return "", errors.Wrap(err, "Failed to format response body JSON")
-	// }
-	return string(buf.Bytes()) // , err
+	if err := json.Indent(&buf, r.RawBody, "", "  "); err != nil {
+		panic(errors.Wrapf(err, "Failed to format JSON body"))
+	}
+	return string(buf.Bytes())
 }
 
 const tenableAPI = "https://cloud.tenable.com"
@@ -144,6 +142,7 @@ func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interfac
 	return response, err
 }
 
+// opts should be some sort of QueryOpts interface
 func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, dest interface{}) (*Response, error) {
 	u, err := makeUrl(url, opts)
 	if err != nil {
@@ -151,6 +150,20 @@ func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, d
 	}
 	// nil body because it's a GET request
 	req, err := t.NewRequest(http.MethodGet, u, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := t.Do(ctx, req, dest)
+	return resp, err
+}
+
+func (t *TenableClient) Post(ctx context.Context, url string, opts interface{}, body interface{}, dest interface{}) (*Response, error) {
+	u, err := makeUrl(url, opts)
+	if err != nil {
+		return nil, err
+	}
+	// nil body because it's a GET request
+	req, err := t.NewRequest(http.MethodPost, u, body)
 	if err != nil {
 		return nil, err
 	}

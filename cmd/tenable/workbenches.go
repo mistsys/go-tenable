@@ -1,11 +1,8 @@
-// nice things to have from this point are
-// list all assets *and associated vulnerabilities* in one command
-// carve out the low utility commands, or leave them but mark them as interfaces to internal/intermediate APIs
 package tenable
 
 import (
 	"context"
-	// "encoding/json"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -71,12 +68,18 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 			// meaningful way
 			for i := 0; i < len(args); i++ {
 				// note the function name: this is a singular asset, the other branch is plural
-				_, response, err := client.Workbenches.AssetVulnerabilities(context.Background(), args[i])
+				assetId := args[i]
+				allVulns, err := client.Workbenches.AssetVulnerabilityInfoList(context.Background(), assetId)
 				if err != nil {
 					fmt.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
 					os.Exit(1)
 				}
-				fmt.Printf(response.BodyJson())
+				b, err := json.MarshalIndent(allVulns, "  ", "  ")
+				if err != nil {
+					fmt.Printf("Error formatting JSON for vulnerabilities for %s, %v", args[i], err)
+					os.Exit(1)
+				}
+				fmt.Printf(string(b))
 			}
 		} else {
 			_, response, err := client.Workbenches.AssetsVulnerabilities(context.Background())
@@ -238,6 +241,8 @@ func init() {
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesListCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityInfoCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityOutputsCmd)
+
+	workbenchesAssetsRootCmd.AddCommand(allAssetInfoCmd)
 
 	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesCmd)
