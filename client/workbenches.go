@@ -363,14 +363,20 @@ func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*
 
 // HIGHER LEVEL FUNCTIONS
 
-type AllAssetInfo struct {
+type AssetVulnerabilityInfoList struct {
 	AssetId         string
 	Asset           *AssetInfo // this ideally shouldn't have to be here
 	Vulnerabilities []*AssetVulnerabilityInfo
 }
 
 // bad place for this
-func (a *AllAssetInfo) ToRecords() [][]string {
+// would be nice to
+func (a *AssetVulnerabilityInfoList) ToCsvHeader() []string {
+	return []string{"Summary", "Description", "Issue Type", "Status", "Component"}
+}
+
+// bad place for this, need to make this more generic, somehow, and more customizable...
+func (a *AssetVulnerabilityInfoList) ToCsvRecords() [][]string {
 	var ret [][]string
 	var assetName string
 
@@ -383,7 +389,7 @@ func (a *AllAssetInfo) ToRecords() [][]string {
 
 	for _, vuln := range a.Vulnerabilities {
 		description := fmt.Sprintf(`%s`, vuln.Info.Description)
-		// nice to have customizable heading; see command as well
+		// XXX FIXME hardcoded bug, open, test (it seems status isn't importable in the current version of importer?)
 		record := []string{summary, description, "Bug", "Open", "test"}
 		ret = append(ret, record)
 	}
@@ -391,9 +397,9 @@ func (a *AllAssetInfo) ToRecords() [][]string {
 }
 
 // AssetVulnerabilityInfo for every plugin that detected a vulnerability on the asset
-func (s *WorkbenchesService) AssetVulnerabilityInfoList(ctx context.Context, assetId string) (*AllAssetInfo, error) {
+func (s *WorkbenchesService) AssetVulnerabilityInfoList(ctx context.Context, assetId string) (*AssetVulnerabilityInfoList, error) {
 	var vulnsInfo []*AssetVulnerabilityInfo
-	ret := &AllAssetInfo{AssetId: assetId}
+	ret := &AssetVulnerabilityInfoList{AssetId: assetId}
 
 	assetInfo, _, err := s.AssetsInfo(ctx, assetId)
 	if err != nil {

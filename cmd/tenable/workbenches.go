@@ -2,7 +2,6 @@ package tenable
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 
@@ -33,7 +32,7 @@ var workbenchesAssetsCmd = &cobra.Command{
 			fmt.Println("Error getting assets:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
@@ -47,7 +46,7 @@ var workbenchesAssetsInfoCmd = &cobra.Command{
 			fmt.Println("Error getting asset info:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
@@ -74,28 +73,10 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 					fmt.Printf("Error getting vulnerabilites for %s, %v", args[i], err)
 					os.Exit(1)
 				}
-				// TODO this makes a full csv for each asset, but you really want them all in one CSV. need to do 3 things
-				// 1 - rip jira code out into a util somewhere for reuse in other commands
-				// 2 - yeah, properly handle lists or whatever
-				// 3 - make a general output func for use in all commands
-				if outputJira {
-					j := &JiraTicket{
-						Header: defaultJiraTicketHeaders,
-						Source: allVulns,
-					}
-					ticket, err := j.Produce()
-					if err != nil {
-						fmt.Println("Failed to produce jira ticket!", err)
-						os.Exit(1)
-					}
-					fmt.Println(ticket)
-				} else {
-					b, err := json.MarshalIndent(allVulns, "  ", "  ")
-					if err != nil {
-						fmt.Printf("Error formatting JSON for vulnerabilities for %s, %v", args[i], err)
-						os.Exit(1)
-					}
-					fmt.Printf(string(b))
+				err = outputter.Output(allVulns)
+				if err != nil {
+					fmt.Printf("Error formatting vulnerabilities for %s, %v", assetId, err)
+					os.Exit(1)
 				}
 			}
 		} else {
@@ -104,7 +85,7 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 				fmt.Println("Error getting vulnerabilites:", err)
 				os.Exit(1)
 			}
-			fmt.Printf(response.BodyJson())
+			outputter.Output(response.BodyJson())
 		}
 	},
 }
@@ -119,7 +100,7 @@ var workbenchesAssetVulnerabilityInfoCmd = &cobra.Command{
 			fmt.Println("Error getting vulnerability info:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
@@ -133,7 +114,7 @@ var workbenchesAssetVulnerabilityOutputsCmd = &cobra.Command{
 			fmt.Println("Error getting vulnerability outputs:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
@@ -155,7 +136,7 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 			fmt.Println("Error getting vulnerabilities list:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 		fmt.Println(cmd.Flags().Lookup("query").Value)
 	},
 }
@@ -171,7 +152,7 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 				fmt.Println("Error getting vulnerability info:", err)
 				os.Exit(1)
 			}
-			fmt.Printf(response.BodyJson())
+			outputter.Output(response.BodyJson())
 		}
 	},
 }
@@ -187,7 +168,7 @@ var workbenchesVulnerabilityOutputsCmd = &cobra.Command{
 				fmt.Println("Error getting vulnerability outputs:", err)
 				os.Exit(1)
 			}
-			fmt.Printf(response.BodyJson())
+			outputter.Output(response.BodyJson())
 		}
 	},
 }
@@ -201,7 +182,7 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 			fmt.Println("Error getting vulnerabilities filters:", err)
 			os.Exit(1)
 		}
-		fmt.Printf(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 

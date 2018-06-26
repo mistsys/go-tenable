@@ -8,13 +8,14 @@ import (
 	"github.com/spf13/viper"
 
 	tenableClient "github.com/mistsys/go-tenable/client"
+	"github.com/mistsys/go-tenable/outputs"
 )
 
 var (
 	configFile string
 	client     *tenableClient.TenableClient
+	outputter  *outputs.Outputter
 	verbose    bool
-	outputJira bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -27,10 +28,8 @@ var rootCmd = &cobra.Command{
 		// to manually set them anyway, we'll just manually set them...
 		debug := viper.GetBool("debug")
 		client.Debug = debug
-		if debug {
-			// regardless of flag, debug mode implies verbose output
-			verbose = true
-		}
+
+		outputter = outputs.NewOutputter(verbose, viper.GetString("format"), os.Stdout)
 	},
 }
 
@@ -47,14 +46,15 @@ func init() {
 	rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
 	rootCmd.PersistentFlags().String("filters", "", "Filters") // TODO doc
 
-	rootCmd.PersistentFlags().BoolVarP(&outputJira, "jira", "j", false, "Produce CSV output suitable for JIRA import. Not available for all commands.")
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Produce verbose output. Debug implies verbose.")
+	rootCmd.PersistentFlags().String("format", "json", "Output format. Available options are `json` (default) and `jira` (not available for all commands)")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().Bool("debug", false, "Run in debug mode (dump raw request bodies)")
 
 	rootCmd.PersistentFlags().StringVarP(&configFile, "configFile", "f", "", "Config file to read from")
 	flags := rootCmd.PersistentFlags()
 	viper.BindPFlag("accesskey", flags.Lookup("accesskey"))
 	viper.BindPFlag("secretkey", flags.Lookup("secretkey"))
+	viper.BindPFlag("format", flags.Lookup("format"))
 	viper.BindPFlag("debug", flags.Lookup("debug"))
 	cobra.OnInitialize(initConfig)
 }
