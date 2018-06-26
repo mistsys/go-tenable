@@ -3,7 +3,6 @@ package tenable
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -15,15 +14,16 @@ var foldersCmd = &cobra.Command{
 }
 
 var foldersListCmd = &cobra.Command{
-	Use:   "list [ID...]",
-	Short: "List folders.",
+	Use:     "list [ID...]",
+	Short:   "List folders.",
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Folders.List(context.Background())
 		if err != nil {
-			log.Println("Error getting folders list", err)
+			fmt.Println("Error getting folders list", err)
 		}
 		// fmt.Printf("%q", lst)
-		fmt.Println(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 

@@ -3,7 +3,6 @@ package tenable
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -21,10 +20,9 @@ var serverStatusCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Server.Status(context.Background())
 		if err != nil {
-			log.Printf("Error getting server status. %s", err)
+			fmt.Printf("Error getting server status. %s", err)
 		}
-		// fmt.Printf("%v", status)
-		fmt.Println(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
@@ -34,11 +32,10 @@ var serverPropertiesCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Server.Properties(context.Background())
 		if err != nil {
-			log.Println("Error getting server properties.", err)
+			fmt.Println("Error getting server properties.", err)
 		}
 
-		// fmt.Printf("%v", properties)
-		fmt.Println(response.BodyJson())
+		outputter.Output(response.BodyJson())
 	},
 }
 
