@@ -14,11 +14,9 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"path"
-	// "strings"
 
 	"golang.org/x/net/context/ctxhttp"
 
-	// "github.com/google/go-querystring/query"
 	"github.com/pkg/errors"
 )
 
@@ -56,6 +54,9 @@ type TenableClient struct {
 	Folders     *FoldersService
 	Server      *ServerService
 	Workbenches *WorkbenchesService
+
+	// Query parameters struct
+	QueryOpts *TenableQueryOpts
 }
 
 type service struct {
@@ -78,8 +79,14 @@ func NewClient(accessKey string, secretKey string) *TenableClient {
 }
 
 func (t *TenableClient) NewRequest(method string, relativeUrl string, body interface{}) (*http.Request, error) {
-	u, _ := url.Parse(t.baseURL)
+	u, err := url.Parse(t.baseURL)
+	if err != nil {
+		return nil, err
+	}
+
 	u.Path = path.Join(u.Path, relativeUrl)
+	rawQuery := kvToQuery(t.QueryOpts.Params)
+	u.RawQuery = rawQuery
 
 	var buf io.ReadWriter
 	if body != nil {
@@ -142,12 +149,10 @@ func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interfac
 	return response, err
 }
 
-// opts should be some sort of QueryOpts interface
-func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, dest interface{}) (*Response, error) {
-	u, err := makeUrl(url, opts)
-	if err != nil {
-		return nil, err
-	}
+// so I've been using these like opts is set *on the client struct* rather than getting passed
+// in because it reduces repetition in cmd. That means the opts arg here and in Post is unused
+// It's a pretty idiosyncratic interface, so TODO switch to using the arg that's passed...
+func (t *TenableClient) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest interface{}) (*Response, error) {
 	// nil body because it's a GET request
 	req, err := t.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -157,12 +162,7 @@ func (t *TenableClient) Get(ctx context.Context, url string, opts interface{}, d
 	return resp, err
 }
 
-func (t *TenableClient) Post(ctx context.Context, url string, opts interface{}, body interface{}, dest interface{}) (*Response, error) {
-	u, err := makeUrl(url, opts)
-	if err != nil {
-		return nil, err
-	}
-	// nil body because it's a GET request
+func (t *TenableClient) Post(ctx context.Context, u string, opts *TenableQueryOpts, body interface{}, dest interface{}) (*Response, error) {
 	req, err := t.NewRequest(http.MethodPost, u, body)
 	if err != nil {
 		return nil, err

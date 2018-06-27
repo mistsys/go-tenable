@@ -15,6 +15,7 @@ var (
 	configFile string
 	client     *tenableClient.TenableClient
 	outputter  *outputs.Outputter
+	params     string
 	verbose    bool
 )
 
@@ -28,6 +29,8 @@ var rootCmd = &cobra.Command{
 		// to manually set them anyway, we'll just manually set them...
 		debug := viper.GetBool("debug")
 		client.Debug = debug
+		queryOpts := &tenableClient.TenableQueryOpts{Params: params}
+		client.QueryOpts = queryOpts
 
 		outputter = outputs.NewOutputter(verbose, viper.GetString("format"), os.Stdout)
 	},
@@ -41,7 +44,7 @@ func init() {
 	rootCmd.PersistentFlags().String("impersonate", "", "User to impersonate")
 
 	// TODO
-	rootCmd.PersistentFlags().String("query", "", "Query parameters given as a string \"key=value,key=value,...\"")
+	rootCmd.PersistentFlags().StringVar(&params, "params", "", "Query parameters given as a string of \"key=value,key=value,...\"")
 	// or just json, man, why not
 	rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
 	rootCmd.PersistentFlags().String("filters", "", "Filters") // TODO doc
