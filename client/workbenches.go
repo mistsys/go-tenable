@@ -338,7 +338,7 @@ func (s *WorkbenchesService) AssetVulnerabilityOutputs(ctx context.Context, asse
 	return vulns, response, err
 }
 
-// TODO the struct names will collide with scan exports, BUT they might be the same structure, and thus be common
+// FIXME the export struct names will collide with scan exports, BUT they might be the same structure, and thus be common
 func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest, *Response, error) {
 	exp := &ExportRequest{}
 	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
@@ -346,8 +346,9 @@ func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest,
 }
 
 // Query the status for a particular pending export file. When it's ready, the .status field will be "ready"
-func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId string) (*ExportStatus, *Response, error) {
-	u := fmt.Sprintf("workbenches/export/%s/status", fileId)
+// TODO I don't like that it's passed as an int
+func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId int) (*ExportStatus, *Response, error) {
+	u := fmt.Sprintf("workbenches/export/%d/status", fileId)
 	exp := &ExportStatus{}
 	response, err := s.client.Get(ctx, u, nil, exp)
 	return exp, response, err

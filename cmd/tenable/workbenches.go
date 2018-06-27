@@ -4,11 +4,12 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
-var workbenchesCmd = &cobra.Command{
+var workbenchesRootCmd = &cobra.Command{
 	Use:     "workbenches COMMAND",
 	Short:   "Use the Tenable workbenches API",
 	Args:    cobra.MinimumNArgs(1),
@@ -194,16 +195,55 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 var workbenchesExportCmd = &cobra.Command{
 	Use:   "export",
 	Short: "Export a workbench to a file and print the download link.",
-	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Not implemeneted")
+		if params == "" {
+			fmt.Println("Please provide parameters using the --params flag (see the Tenable API docs)")
+			os.Exit(1)
+		}
+
+		exportRequest, _, err := client.Workbenches.ExportRequest(context.Background())
+		if err != nil {
+			fmt.Println("Error initiating export:", err)
+			os.Exit(1)
+		}
+
+		fileId := exportRequest.File
+		fmt.Printf("Started export request with file id: %d\n", fileId)
+		fmt.Print("Waiting for file to finish generating.")
+
+		for {
+			// poll for export status
+			time.Sleep(1 * time.Second)
+			fmt.Print(".")
+			exportStatus, _, err := client.Workbenches.ExportStatus(context.Background(), fileId)
+			if err != nil {
+				fmt.Println("Error checking export status::", err)
+				fmt.Println("It may still complete successfully, but we're going to stop polling.")
+				os.Exit(1)
+			}
+
+			if exportStatus.Status == "ready" {
+				lol := fmt.Sprintf("/workbenches/export/%d/download", fileId)
+				fmt.Printf("\nFile download's not implemented, but the report's ready at %s", lol)
+				os.Exit(0)
+			} else if exportStatus.Progress == exportStatus.ProgressTotal {
+				// For large exports, sometimes the export gets finished but the status doesn't change.
+				// It never *does* seem to change once it's stuck, but the file becomes available after a bit of a wait.
+				// If you just go for it, sometimes the PDF is empty.
+				// bit of repetition
+				lol := fmt.Sprintf("/workbenches/export/%d/download", fileId)
+				fmt.Printf("\nThe API reports that export progress is complete, but the file may not be ready for download just yet.\n")
+				fmt.Printf("File download's not implemented, but the report should be ready soon at %s", lol)
+				os.Exit(0)
+			}
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(workbenchesCmd)
+	rootCmd.AddCommand(workbenchesRootCmd)
 
-	workbenchesCmd.AddCommand(workbenchesAssetsRootCmd)
+	workbenchesRootCmd.AddCommand(workbenchesAssetsRootCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsInfoCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesRootCmd)
@@ -211,9 +251,11 @@ func init() {
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityInfoCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityOutputsCmd)
 
-	workbenchesCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
+	workbenchesRootCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilityOutputsCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesFiltersCmd)
+
+	workbenchesRootCmd.AddCommand(workbenchesExportCmd)
 }
