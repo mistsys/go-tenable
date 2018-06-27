@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/pkg/errors"
 )
@@ -90,4 +91,19 @@ func (o *Outputter) Output(data interface{}) error {
 // ugly!
 func (o *Outputter) SetFormat(format string) {
 	o.Format = format
+}
+
+// cowardly newfile function which creates a new file or errors if it already exists
+func NewFile(filename string) (*os.File, error) {
+	if _, err := os.Stat(filename); !os.IsNotExist(err) {
+		// file exists!
+		return nil, errors.New(fmt.Sprintf("File %s already exists", filename))
+	}
+
+	f, err := os.Create(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	return f, err
 }

@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	configFile string
-	client     *tenableClient.TenableClient
-	outputter  *outputs.Outputter
-	params     string
-	verbose    bool
+	configFile     string
+	client         *tenableClient.TenableClient
+	outputter      *outputs.Outputter
+	params         string
+	verbose        bool
+	outputFilename string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -32,27 +33,42 @@ var rootCmd = &cobra.Command{
 		queryOpts := &tenableClient.TenableQueryOpts{Params: params}
 		client.QueryOpts = queryOpts
 
-		outputter = outputs.NewOutputter(verbose, viper.GetString("format"), os.Stdout)
+		var outputFd *os.File
+		var err error // ???
+		if outputFilename == "-" {
+			outputFd = os.Stdout
+		} else {
+			outputFd, err = outputs.NewFile(outputFilename)
+			if err != nil {
+				fmt.Println("Error creating output file:", err)
+				os.Exit(1)
+			}
+		}
+		outputter = outputs.NewOutputter(verbose, viper.GetString("format"), outputFd)
 	},
 }
 
 func init() {
+	// authn
 	rootCmd.PersistentFlags().StringP("accesskey", "k", "", "Tenable Access Key (required)")
 	rootCmd.PersistentFlags().StringP("secretkey", "s", "", "Tenable Secret Key (required)")
-	rootCmd.MarkFlagRequired("accesskey") // these calls don't do anything if you use viper
-	rootCmd.MarkFlagRequired("secretkey") // these calls don't do anything if you use viper
+	rootCmd.MarkFlagRequired("accesskey") // XXX these calls don't do anything if you use viper
+	rootCmd.MarkFlagRequired("secretkey") // XXX these calls don't do anything if you use viper
 	rootCmd.PersistentFlags().String("impersonate", "", "User to impersonate")
 
-	// TODO
+	// request params
 	rootCmd.PersistentFlags().StringVar(&params, "params", "", "Query parameters given as a string of \"key=value,key=value,...\"")
-	// or just json, man, why not
+	// TODO next two
 	rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
-	rootCmd.PersistentFlags().String("filters", "", "Filters") // TODO doc
+	rootCmd.PersistentFlags().String("filters", "", "Filters")
 
+	// output args
+	rootCmd.PersistentFlags().StringVarP(&outputFilename, "output-file", "o", "-", "Output file. Passing `-` writes to stdout (default)")
 	rootCmd.PersistentFlags().String("format", "json", "Output format. Available options are `json` (default) and `jira` (not available for all commands)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().Bool("debug", false, "Run in debug mode (dump raw request bodies)")
 
+	// viper stuff for using config files
 	rootCmd.PersistentFlags().StringVarP(&configFile, "configFile", "f", "", "Config file to read from")
 	flags := rootCmd.PersistentFlags()
 	viper.BindPFlag("accesskey", flags.Lookup("accesskey"))
