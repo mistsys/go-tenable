@@ -41,7 +41,7 @@ func (j *JiraTicket) Produce() (string, error) {
 	return string(buf.Bytes()), nil
 }
 
-// rest of file unused for now
+/*
 const (
 	assetVulnerabilitiesTicketTemplate = `not implemented`
 	csvTag                             = "csv"
