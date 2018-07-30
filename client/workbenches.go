@@ -1,4 +1,4 @@
-package client
+package tenable
 
 import (
 	"context"
@@ -354,22 +354,21 @@ func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId int) (*Exp
 	return exp, response, err
 }
 
-// this would actually download the file, which we don't really want. Maybe these three should get wrapped up into
-// one big ExportDownload that requests, polls, and then hands you a link?
+// Downloads the file, which you likely don't want to do through Go
 // func (s *WorkbenchesService) ExportDownload(ctx context.Context) (*ExportRequest, *Response, error) {
-// 	exp := &ExportRequest{}
-// 	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
-// 	return exp, response, err
+//     exp := &ExportRequest{}
+//     response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
+//     return exp, response, err
 // }
 
 // HIGHER LEVEL FUNCTIONS
-
 type AssetVulnerabilityInfoList struct {
 	AssetId         string
 	Asset           *AssetInfo // this ideally shouldn't have to be here
 	Vulnerabilities []*AssetVulnerabilityInfo
 }
 
+// so TODO XXX FIXME this stuff should be like, a template file of some kind
 // bad place for this
 // would be nice to
 func (a *AssetVulnerabilityInfoList) ToCsvHeader() []string {

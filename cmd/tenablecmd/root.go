@@ -1,4 +1,4 @@
-package tenable
+package tenablecmd
 
 import (
 	"fmt"
@@ -7,13 +7,13 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	tenableClient "github.com/mistsys/go-tenable/client"
+	tenable "github.com/mistsys/go-tenable/client"
 	"github.com/mistsys/go-tenable/outputs"
 )
 
 var (
 	configFile     string
-	client         *tenableClient.TenableClient
+	client         *tenable.Client
 	outputter      *outputs.Outputter
 	params         string
 	verbose        bool
@@ -25,12 +25,12 @@ var rootCmd = &cobra.Command{
 	Use:   "tenable COMMAND",
 	Short: "A CLI for the Tenable API",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		client = tenableClient.NewClient(viper.GetString("accesskey"), viper.GetString("secretkey"))
+		client = tenable.NewClient(viper.GetString("accesskey"), viper.GetString("secretkey"))
 		// using viper means the cobra *Var flag options don't actually populate the global variables from config files; if you
 		// to manually set them anyway, we'll just manually set them...
 		debug := viper.GetBool("debug")
 		client.Debug = debug
-		queryOpts := &tenableClient.TenableQueryOpts{Params: params}
+		queryOpts := &tenable.TenableQueryOpts{Params: params}
 		client.QueryOpts = queryOpts
 
 		var outputFd *os.File
@@ -88,7 +88,7 @@ func initConfig() {
 	}
 
 	if err := viper.ReadInConfig(); err != nil {
-		// fail quietly unless verbose mode is on
+		// fail quietly unless verbose mode is on; config may have been passed as args
 		if verbose {
 			fmt.Println("Can't read config!", err)
 		}

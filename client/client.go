@@ -1,6 +1,4 @@
-// XXX naming this package client (and calling the client TenableClient) is poor style, or at least idiosyncratic
-// usually, the package would be named tenable, and the client would just be Client. TODO make that change...
-package client
+package tenable
 
 import (
 	"bytes"
@@ -37,7 +35,7 @@ func (r *Response) BodyJson() string {
 
 const tenableAPI = "https://cloud.tenable.com"
 
-type TenableClient struct {
+type Client struct {
 	baseURL string
 	client  *http.Client
 	common  service
@@ -60,11 +58,11 @@ type TenableClient struct {
 }
 
 type service struct {
-	client *TenableClient
+	client *Client
 }
 
-func NewClient(accessKey string, secretKey string) *TenableClient {
-	c := &TenableClient{
+func NewClient(accessKey string, secretKey string) *Client {
+	c := &Client{
 		baseURL:   tenableAPI,
 		accessKey: accessKey,
 		secretKey: secretKey,
@@ -78,7 +76,7 @@ func NewClient(accessKey string, secretKey string) *TenableClient {
 	return c
 }
 
-func (t *TenableClient) NewRequest(method string, relativeUrl string, body interface{}) (*http.Request, error) {
+func (t *Client) NewRequest(method string, relativeUrl string, body interface{}) (*http.Request, error) {
 	u, err := url.Parse(t.baseURL)
 	if err != nil {
 		return nil, err
@@ -119,7 +117,7 @@ func (t *TenableClient) NewRequest(method string, relativeUrl string, body inter
 	return req, nil
 }
 
-func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interface{}) (*Response, error) {
+func (t *Client) Do(ctx context.Context, req *http.Request, dest interface{}) (*Response, error) {
 	res, err := ctxhttp.Do(ctx, t.client, req)
 	response := &Response{RawResponse: res}
 	if err != nil { // hm
@@ -152,7 +150,7 @@ func (t *TenableClient) Do(ctx context.Context, req *http.Request, dest interfac
 // so I've been using these like opts is set *on the client struct* rather than getting passed
 // in because it reduces repetition in cmd. That means the opts arg here and in Post is unused
 // It's a pretty idiosyncratic interface, so TODO switch to using the arg that's passed...
-func (t *TenableClient) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest interface{}) (*Response, error) {
+func (t *Client) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest interface{}) (*Response, error) {
 	// nil body because it's a GET request
 	req, err := t.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -162,7 +160,7 @@ func (t *TenableClient) Get(ctx context.Context, u string, opts *TenableQueryOpt
 	return resp, err
 }
 
-func (t *TenableClient) Post(ctx context.Context, u string, opts *TenableQueryOpts, body interface{}, dest interface{}) (*Response, error) {
+func (t *Client) Post(ctx context.Context, u string, opts *TenableQueryOpts, body interface{}, dest interface{}) (*Response, error) {
 	req, err := t.NewRequest(http.MethodPost, u, body)
 	if err != nil {
 		return nil, err
@@ -171,14 +169,14 @@ func (t *TenableClient) Post(ctx context.Context, u string, opts *TenableQueryOp
 	return resp, err
 }
 
-func (t *TenableClient) SetHttpClient(client *http.Client) {
+func (t *Client) SetHttpClient(client *http.Client) {
 	t.client = client
 }
 
-func (t *TenableClient) SetBaseUrl(baseUrl string) {
+func (t *Client) SetBaseUrl(baseUrl string) {
 	t.baseURL = baseUrl
 }
 
-func (t *TenableClient) ImpersonateAs(username string) {
+func (t *Client) ImpersonateAs(username string) {
 	t.impersonate = username
 }

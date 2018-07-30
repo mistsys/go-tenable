@@ -1,4 +1,4 @@
-package client
+package tenable
 
 type Host struct {
 	AssetID             int    `json:"asset_id"`

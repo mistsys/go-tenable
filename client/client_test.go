@@ -1,4 +1,4 @@
-package client
+package tenable
 
 import (
 	"context"
@@ -13,7 +13,7 @@ func TestResponse_BodyJson(t *testing.T) {
 		r    *Response
 		want string
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -32,9 +32,9 @@ func TestNewClient(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *TenableClient
+		want *Client
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -45,7 +45,7 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestTenableClient_NewRequest(t *testing.T) {
+func TestClient_NewRequest(t *testing.T) {
 	type args struct {
 		method      string
 		relativeUrl string
@@ -53,28 +53,28 @@ func TestTenableClient_NewRequest(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *TenableClient
+		t       *Client
 		args    args
 		want    *http.Request
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.t.NewRequest(tt.args.method, tt.args.relativeUrl, tt.args.body)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("TenableClient.NewRequest() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Client.NewRequest() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TenableClient.NewRequest() = %v, want %v", got, tt.want)
+				t.Errorf("Client.NewRequest() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTenableClient_Do(t *testing.T) {
+func TestClient_Do(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		req  *http.Request
@@ -82,28 +82,28 @@ func TestTenableClient_Do(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *TenableClient
+		t       *Client
 		args    args
 		want    *Response
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.t.Do(tt.args.ctx, tt.args.req, tt.args.dest)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("TenableClient.Do() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Client.Do() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TenableClient.Do() = %v, want %v", got, tt.want)
+				t.Errorf("Client.Do() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTenableClient_Get(t *testing.T) {
+func TestClient_Get(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		u    string
@@ -112,28 +112,28 @@ func TestTenableClient_Get(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *TenableClient
+		t       *Client
 		args    args
 		want    *Response
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.t.Get(tt.args.ctx, tt.args.u, tt.args.opts, tt.args.dest)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("TenableClient.Get() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Client.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TenableClient.Get() = %v, want %v", got, tt.want)
+				t.Errorf("Client.Get() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTenableClient_Post(t *testing.T) {
+func TestClient_Post(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		u    string
@@ -143,37 +143,37 @@ func TestTenableClient_Post(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		t       *TenableClient
+		t       *Client
 		args    args
 		want    *Response
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.t.Post(tt.args.ctx, tt.args.u, tt.args.opts, tt.args.body, tt.args.dest)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("TenableClient.Post() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Client.Post() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TenableClient.Post() = %v, want %v", got, tt.want)
+				t.Errorf("Client.Post() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestTenableClient_SetHttpClient(t *testing.T) {
+func TestClient_SetHttpClient(t *testing.T) {
 	type args struct {
 		client *http.Client
 	}
 	tests := []struct {
 		name string
-		t    *TenableClient
+		t    *Client
 		args args
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -182,16 +182,16 @@ func TestTenableClient_SetHttpClient(t *testing.T) {
 	}
 }
 
-func TestTenableClient_SetBaseUrl(t *testing.T) {
+func TestClient_SetBaseUrl(t *testing.T) {
 	type args struct {
 		baseUrl string
 	}
 	tests := []struct {
 		name string
-		t    *TenableClient
+		t    *Client
 		args args
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -200,16 +200,16 @@ func TestTenableClient_SetBaseUrl(t *testing.T) {
 	}
 }
 
-func TestTenableClient_ImpersonateAs(t *testing.T) {
+func TestClient_ImpersonateAs(t *testing.T) {
 	type args struct {
 		username string
 	}
 	tests := []struct {
 		name string
-		t    *TenableClient
+		t    *Client
 		args args
 	}{
-		// TODO: Add test cases.
+	// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

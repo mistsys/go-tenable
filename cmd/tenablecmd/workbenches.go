@@ -1,4 +1,4 @@
-package tenable
+package tenablecmd
 
 import (
 	"context"
@@ -138,7 +138,7 @@ var workbenchesVulnerabilitiesCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		outputter.Output(response.BodyJson())
-		fmt.Println(cmd.Flags().Lookup("query").Value)
+		// fmt.Println(cmd.Flags().Lookup("query").Value)
 	},
 }
 

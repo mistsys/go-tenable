@@ -1,4 +1,4 @@
-package tenable
+package tenablecmd
 
 import (
 	"context"

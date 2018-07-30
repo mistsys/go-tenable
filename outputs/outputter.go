@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 
 	"github.com/pkg/errors"
 )
 
+// 30 Jul TODO this should be a "template processor" with a "jira template" for each data type
 func jiraProcessor(data interface{}) (string, error) {
 	if ticketSource, ok := data.(CsvAble); ok == true {
 		ticket := &JiraTicket{Source: ticketSource}
@@ -70,10 +72,8 @@ func (o *Outputter) Output(data interface{}) error {
 		msg, err = jiraProcessor(data)
 	case "json":
 		msg, err = jsonProcessor(data)
-	case "raw": // see above?
-		msg, err = jsonProcessor(data)
 	// case "template":
-	// 	msg, err = templateProcessor(data)
+	//     msg, err = templateProcessor(data)
 	default:
 		msg, err = jsonProcessor(data)
 	}
