@@ -49,6 +49,10 @@ var scannersGetAwsTargetsCmd = &cobra.Command{
 }
 
 func init() {
+	// should make cmd 'registering' functions (like many other cobra-based clis)
+	scannersListCmd.Flags().String("scanner-id", "", "oh my fucking god dude")
+	scannersListCmd.MarkFlagRequired("scanner-id")
+
 	rootCmd.AddCommand(scannersRootCmd)
 	scannersRootCmd.AddCommand(scannersListCmd)
 	scannersRootCmd.AddCommand(scannersGetAwsTargetsCmd)

@@ -18,7 +18,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// TODO this doesn't add any utility; just use http.Response and nopcloser to get raw body reuse
+// TODO this doesn't add any utility, and takes up more space
+// just use http.Response and nopcloser to get raw body reuse
+// or just don't even pass the response around; there's really no need
 type Response struct {
 	RawResponse *http.Response
 	RawBody     []byte
@@ -48,9 +50,11 @@ type Client struct {
 	impersonate string
 
 	// all the service objects defined in lowercaseservicename.go
-	Scans       *ScansService
+	Editor      *EditorService
 	Folders     *FoldersService
 	Server      *ServerService
+	Scans       *ScansService
+	Scanners    *ScannersService
 	Workbenches *WorkbenchesService
 
 	// Query parameters struct
@@ -69,9 +73,11 @@ func NewClient(accessKey string, secretKey string) *Client {
 		client:    http.DefaultClient,
 	}
 	c.common.client = c
-	c.Scans = (*ScansService)(&c.common)
+	c.Editor = (*EditorService)(&c.common)
 	c.Folders = (*FoldersService)(&c.common)
 	c.Server = (*ServerService)(&c.common)
+	c.Scans = (*ScansService)(&c.common)
+	c.Scanners = (*ScannersService)(&c.common)
 	c.Workbenches = (*WorkbenchesService)(&c.common)
 	return c
 }
