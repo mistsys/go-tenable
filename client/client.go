@@ -166,7 +166,7 @@ func (t *Client) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest
 	return resp, err
 }
 
-func (t *Client) Post(ctx context.Context, u string, opts *TenableQueryOpts, body interface{}, dest interface{}) (*Response, error) {
+func (t *Client) Post(ctx context.Context, u string, opts *TenableQueryOpts, body io.Reader, dest interface{}) (*Response, error) {
 	req, err := t.NewRequest(http.MethodPost, u, body)
 	if err != nil {
 		return nil, err

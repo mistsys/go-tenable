@@ -3,7 +3,6 @@ package tenable
 import (
 	"context"
 	"fmt"
-	"net/http"
 )
 
 type ScansService service
@@ -85,53 +84,33 @@ type ScanDetail struct {
 	Vulnerabilities []Vulnerability `json:"vulnerabilities"`
 }
 
-type ScansList struct {
+type Scans struct {
 	Folders   []Folder `json:"folders"`
 	Scans     []Scan   `json:"scans"`
 	Timestamp int      `json:"timestamp"`
 }
 
-// REQUEST STRUCTS
-
-// The full flow for downloading a scan report is:
-// 1. hit /scans/export-request to start preparing a report file
-// 2. poll /scans/export-status until the file is ready
-// 3. hit /scans/export-download to get the report file
-
-// response object when you successfully *request* a download
-type ScanExportRequest struct {
-	File      string `json:"file"`
-	TempToken string `json:"temp_token"`
+// response when a scan is launched
+type ScansLaunch struct {
+	ScanUUID string `json:"scan_uuid"`
 }
 
-type ScanExportStatus struct {
-	foo string
-}
-
-type ScanExportDownload struct {
-	foo string
-}
-
-func (s *ScansService) List(ctx context.Context) (*ScansList, *Response, error) {
-	list := &ScansList{}
+func (s *ScansService) List(ctx context.Context) (*Scans, *Response, error) {
+	list := &Scans{}
 	response, err := s.client.Get(ctx, "scans", nil, list)
 	return list, response, err
 }
 
-func (s *ScansService) Detail(ctx context.Context, scanId string) (*ScanDetail, *Response, error) {
-	u := fmt.Sprintf("scans/%s", scanId)
+func (s *ScansService) Detail(ctx context.Context, scanId int) (*ScanDetail, *Response, error) {
+	u := fmt.Sprintf("scans/%d", scanId)
 	status := &ScanDetail{}
 	response, err := s.client.Get(ctx, u, nil, status)
 	return status, response, err
 }
 
-// TODO actually supposed to be a POST
-func (s *ScansService) ExportRequest(ctx context.Context, scanId string) (*ScanDetail, *Response, error) {
-	req, err := s.client.NewRequest(http.MethodGet, fmt.Sprintf("scans/%s", scanId), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	status := &ScanDetail{}
-	response, err := s.client.Do(ctx, req, status)
-	return status, response, err
+func (s *ScansService) Launch(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+	u := fmt.Sprintf("scans/%d/launch", scanId)
+	launch := &ScansLaunch{}
+	response, err := s.client.Post(ctx, u, nil, nil, launch)
+	return launch, response, err
 }

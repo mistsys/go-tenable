@@ -2,7 +2,6 @@ package tenable
 
 import (
 	"encoding/json"
-	// "fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -63,6 +62,7 @@ func kvToQuery(s string) string {
 	return opts.Encode()
 }
 
+// unused
 func checkPayload(payload []byte) error {
 	return json.Unmarshal(payload, nil)
 }
