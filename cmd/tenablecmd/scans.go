@@ -53,7 +53,7 @@ var scansListCmd = &cobra.Command{
 var scansLaunchCmd = &cobra.Command{
 	Use:   "launch ID",
 	Short: "Launch a scan",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scanId, err := strconv.Atoi(args[0])
 		if err != nil {

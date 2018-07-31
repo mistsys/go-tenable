@@ -40,7 +40,7 @@ var workbenchesAssetsCmd = &cobra.Command{
 var workbenchesAssetsInfoCmd = &cobra.Command{
 	Use:   "info ID",
 	Short: "Get general information about an asset",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetsInfo(context.Background(), args[0])
 		if err != nil {
@@ -94,7 +94,7 @@ var workbenchesAssetsVulnerabilitiesListCmd = &cobra.Command{
 var workbenchesAssetVulnerabilityInfoCmd = &cobra.Command{
 	Use:   "info assetId pluginId",
 	Short: "Get the vulnerability details for a single plugin on a single asset",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetVulnerabilityInfo(context.Background(), args[0], args[1])
 		if err != nil {
@@ -108,7 +108,7 @@ var workbenchesAssetVulnerabilityInfoCmd = &cobra.Command{
 var workbenchesAssetVulnerabilityOutputsCmd = &cobra.Command{
 	Use:   "outputs assetId pluginId",
 	Short: "Get the vulnerability outputs for a single plugin on a single asset",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		_, response, err := client.Workbenches.AssetVulnerabilityOutputs(context.Background(), args[0], args[1])
 		if err != nil {

@@ -2,6 +2,7 @@ package tenable
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"reflect"
 	"testing"
@@ -138,7 +139,7 @@ func TestClient_Post(t *testing.T) {
 		ctx  context.Context
 		u    string
 		opts *TenableQueryOpts
-		body interface{}
+		body io.Reader
 		dest interface{}
 	}
 	tests := []struct {
