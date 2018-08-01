@@ -51,13 +51,13 @@ var scansListCmd = &cobra.Command{
 }
 
 var scansLaunchCmd = &cobra.Command{
-	Use:   "launch ID",
+	Use:   "launch SCAN_ID",
 	Short: "Launch a scan",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		scanId, err := strconv.Atoi(args[0])
 		if err != nil {
-			fmt.Println("ID must be an int. Got:", args[0])
+			fmt.Println("SCAN_ID must be an int. Got:", args[0])
 			os.Exit(1)
 		}
 		_, response, err := client.Scans.Launch(context.Background(), scanId, nil)

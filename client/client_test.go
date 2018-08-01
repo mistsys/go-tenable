@@ -108,7 +108,7 @@ func TestClient_Get(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		u    string
-		opts *TenableQueryOpts
+		opts *QueryOpts
 		dest interface{}
 	}
 	tests := []struct {
@@ -138,7 +138,7 @@ func TestClient_Post(t *testing.T) {
 	type args struct {
 		ctx  context.Context
 		u    string
-		opts *TenableQueryOpts
+		opts *QueryOpts
 		body io.Reader
 		dest interface{}
 	}

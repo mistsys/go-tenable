@@ -223,11 +223,11 @@ type VulnerabilitiesFilters struct {
 	Filters []Filter `json:"filters"`
 }
 
-type ExportRequest struct {
+type WbExportRequest struct {
 	File int `json:"file"`
 }
 
-type ExportStatus struct {
+type WbExportStatus struct {
 	ProgressTotal string `json:"progress_total"`
 	Progress      string `json:"progress"`
 	Status        string `json:"status"`
@@ -235,7 +235,7 @@ type ExportStatus struct {
 
 // REQUEST STRUCTS
 
-// NOTE not sure if even used
+// unused
 type WorkbenchExportRequestOpts struct {
 	// REQUIRED
 	// valid values are nessus, html, pdf, csv
@@ -339,29 +339,29 @@ func (s *WorkbenchesService) AssetVulnerabilityOutputs(ctx context.Context, asse
 }
 
 // FIXME the export struct names will collide with scan exports, BUT they might be the same structure, and thus be common
-func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*ExportRequest, *Response, error) {
-	exp := &ExportRequest{}
+func (s *WorkbenchesService) ExportRequest(ctx context.Context) (*WbExportRequest, *Response, error) {
+	exp := &WbExportRequest{}
 	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
 	return exp, response, err
 }
 
 // Query the status for a particular pending export file. When it's ready, the .status field will be "ready"
 // TODO I don't like that it's passed as an int
-func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId int) (*ExportStatus, *Response, error) {
+func (s *WorkbenchesService) ExportStatus(ctx context.Context, fileId int) (*WbExportStatus, *Response, error) {
 	u := fmt.Sprintf("workbenches/export/%d/status", fileId)
-	exp := &ExportStatus{}
+	exp := &WbExportStatus{}
 	response, err := s.client.Get(ctx, u, nil, exp)
 	return exp, response, err
 }
 
 // Downloads the file, which you likely don't want to do through Go
-// func (s *WorkbenchesService) ExportDownload(ctx context.Context) (*ExportRequest, *Response, error) {
-//     exp := &ExportRequest{}
-//     response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
-//     return exp, response, err
-// }
+func (s *WorkbenchesService) ExportDownload(ctx context.Context) (*WbExportRequest, *Response, error) {
+	exp := &WbExportRequest{}
+	response, err := s.client.Get(ctx, "workbenches/export", nil, exp)
+	return exp, response, err
+}
 
-// HIGHER LEVEL FUNCTIONS
+// Custom, higher level data structure
 type AssetVulnerabilityInfoList struct {
 	AssetId         string
 	Asset           *AssetInfo // this ideally shouldn't have to be here

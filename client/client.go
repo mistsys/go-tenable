@@ -35,6 +35,15 @@ func (r *Response) BodyJson() string {
 	return string(buf.Bytes())
 }
 
+type QueryOpts struct {
+	// your normal key=value,key=value params
+	Params string // TODO map
+	// for Tenable's query param array format
+	// not implemented. the scheme takes args like []string{"filter=foo,quality=bar",...}
+	// to filter.0.name=foo,filter.0.quality=bar...
+	// Filters []string
+}
+
 const tenableAPI = "https://cloud.tenable.com"
 
 type Client struct {
@@ -58,7 +67,7 @@ type Client struct {
 	Workbenches *WorkbenchesService
 
 	// Query parameters struct
-	QueryOpts *TenableQueryOpts
+	QueryOpts *QueryOpts
 }
 
 type service struct {
@@ -82,7 +91,7 @@ func NewClient(accessKey string, secretKey string) *Client {
 	return c
 }
 
-func (t *Client) NewRequest(method string, relativeUrl string, body interface{}) (*http.Request, error) {
+func (t *Client) NewRequest(method string, relativeUrl string, body io.Reader) (*http.Request, error) {
 	u, err := url.Parse(t.baseURL)
 	if err != nil {
 		return nil, err
@@ -92,21 +101,14 @@ func (t *Client) NewRequest(method string, relativeUrl string, body interface{})
 	rawQuery := kvToQuery(t.QueryOpts.Params)
 	u.RawQuery = rawQuery
 
-	var buf io.ReadWriter
-	if body != nil {
-		buf = new(bytes.Buffer)
-		err := json.NewEncoder(buf).Encode(body)
-		if err != nil {
-			return nil, err
-		}
-	}
-	req, err := http.NewRequest(method, u.String(), buf)
+	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Failed to create request")
 
 	}
 
 	if body != nil {
+		// take note!
 		req.Header.Set("Content-Type", "application/json")
 	}
 	req.Header.Set("X-ApiKeys", fmt.Sprintf("accessKey=%s; secretKey=%s", t.accessKey, t.secretKey))
@@ -153,10 +155,8 @@ func (t *Client) Do(ctx context.Context, req *http.Request, dest interface{}) (*
 	return response, err
 }
 
-// so I've been using these like opts is set *on the client struct* rather than getting passed
-// in because it reduces repetition in cmd. That means the opts arg here and in Post is unused
-// It's a pretty idiosyncratic interface, so TODO switch to using the arg that's passed...
-func (t *Client) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest interface{}) (*Response, error) {
+func (t *Client) Get(ctx context.Context, u string, opts *QueryOpts, dest interface{}) (*Response, error) {
+	// t.QueryOpts = opts // TODO
 	// nil body because it's a GET request
 	req, err := t.NewRequest(http.MethodGet, u, nil)
 	if err != nil {
@@ -166,7 +166,8 @@ func (t *Client) Get(ctx context.Context, u string, opts *TenableQueryOpts, dest
 	return resp, err
 }
 
-func (t *Client) Post(ctx context.Context, u string, opts *TenableQueryOpts, body io.Reader, dest interface{}) (*Response, error) {
+func (t *Client) Post(ctx context.Context, u string, opts *QueryOpts, body io.Reader, dest interface{}) (*Response, error) {
+	// t.QueryOpts = opts // TODO
 	req, err := t.NewRequest(http.MethodPost, u, body)
 	if err != nil {
 		return nil, err

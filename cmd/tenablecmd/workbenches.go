@@ -194,7 +194,7 @@ var workbenchesVulnerabilitiesFiltersCmd = &cobra.Command{
 // TODO requires a lot of options so gotta mature-ize that interface first, probably
 var workbenchesExportCmd = &cobra.Command{
 	Use:   "export",
-	Short: "Export a workbench to a file and print the download link.",
+	Short: "Export a workbench and print the download link.",
 	Run: func(cmd *cobra.Command, args []string) {
 		if params == "" {
 			fmt.Println("Please provide parameters using the --params flag (see the Tenable API docs)")
@@ -223,17 +223,17 @@ var workbenchesExportCmd = &cobra.Command{
 			}
 
 			if exportStatus.Status == "ready" {
-				lol := fmt.Sprintf("/workbenches/export/%d/download", fileId)
-				fmt.Printf("\nFile download's not implemented, but the report's ready at %s", lol)
+				u := fmt.Sprintf("/workbenches/export/%d/download", fileId)
+				fmt.Printf("\nReport is ready at %s (must be authenticated)", u)
 				os.Exit(0)
 			} else if exportStatus.Progress == exportStatus.ProgressTotal {
 				// For large exports, sometimes the export gets finished but the status doesn't change.
 				// It never *does* seem to change once it's stuck, but the file becomes available after a bit of a wait.
 				// If you just go for it, sometimes the PDF is empty.
 				// bit of repetition
-				lol := fmt.Sprintf("/workbenches/export/%d/download", fileId)
+				u := fmt.Sprintf("/workbenches/export/%d/download", fileId)
 				fmt.Printf("\nThe API reports that export progress is complete, but the file may not be ready for download just yet.\n")
-				fmt.Printf("File download's not implemented, but the report should be ready soon at %s", lol)
+				fmt.Printf("\nReport should be ready soon at %s (must be authenticated)", u)
 				os.Exit(0)
 			}
 		}
