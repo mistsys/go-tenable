@@ -50,7 +50,7 @@ func TestClient_NewRequest(t *testing.T) {
 	type args struct {
 		method      string
 		relativeUrl string
-		body        interface{}
+		body        io.Reader
 	}
 	tests := []struct {
 		name    string

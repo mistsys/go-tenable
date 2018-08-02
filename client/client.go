@@ -177,6 +177,7 @@ func (t *Client) Post(ctx context.Context, u string, opts *QueryOpts, body io.Re
 }
 
 // odd authenticated duck that can be used for arbitrary gets, e.g., for export file downloads... yeah, it's a hack
+// this can get refactored into Get, or really into *Do*
 func (t *Client) PlainGet(ctx context.Context, u string) (*http.Response, error) {
 	req, err := t.NewRequest(http.MethodGet, u, nil)
 	if err != nil {

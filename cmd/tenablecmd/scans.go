@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"strconv"
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/mistsys/go-tenable/outputs"
 )
+
+var format string
 
 var scansCmd = &cobra.Command{
 	Use:   "scans COMMAND",
@@ -82,8 +84,12 @@ var scansExportCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		format := viper.GetString("format")
-		exportRequest, _, err := client.Scans.ExportRequest(context.Background(), scanId, format)
+		// exportFormat is what tenable will create, format is what we'll output
+		exportFormat := format
+		if strings.ToLower(format) == "jira" {
+			exportFormat = "csv"
+		}
+		exportRequest, _, err := client.Scans.ExportRequest(context.Background(), scanId, exportFormat)
 		if err != nil {
 			fmt.Println("Error initiating export:", err)
 			os.Exit(1)
@@ -92,6 +98,7 @@ var scansExportCmd = &cobra.Command{
 		fileId := exportRequest.File
 		fmt.Printf("Started export request with file id: %d\n", fileId)
 		fmt.Print("Waiting for file to finish generating.")
+		u := fmt.Sprintf("/scans/%d/export/%d/download", scanId, fileId)
 
 		for {
 			// poll for export status
@@ -101,6 +108,7 @@ var scansExportCmd = &cobra.Command{
 			if err != nil {
 				fmt.Println("Error checking export status::", err)
 				fmt.Println("It may still complete successfully, but we're going to stop polling.")
+				fmt.Printf("Should it complete, the report will be available at %s (must be authenticated)\n", u)
 				os.Exit(1)
 			}
 
@@ -111,7 +119,6 @@ var scansExportCmd = &cobra.Command{
 		}
 
 		// if we're here, it's ready
-		u := fmt.Sprintf("/scans/%d/export/%d/download", scanId, fileId)
 		if outputFilename != "-" {
 			fd, err := outputs.NewFile(outputFilename)
 			defer fd.Close()
@@ -120,16 +127,25 @@ var scansExportCmd = &cobra.Command{
 			} else {
 				resp, _ := client.PlainGet(context.Background(), u)
 				defer resp.Body.Close()
-				n, _ := io.Copy(fd, resp.Body)
-				fmt.Printf("%d bytes written to %s\n", n, outputFilename)
+				if strings.ToLower(format) == "jira" {
+					outputs.WriteTenableToJira(resp.Body, fd)
+				} else {
+					_, err := io.Copy(fd, resp.Body)
+					if err != nil {
+						fmt.Printf("Error writing to %s: %v\n", outputFilename, err)
+						os.Exit(1)
+					}
+				}
+				fmt.Printf("Wrote to %s\n", outputFilename)
 				os.Exit(0)
 			}
 		}
-		fmt.Printf("\nReport is ready at %s (must be authenticated)", u)
+		fmt.Printf("\nReport (%s) is ready at %s (must be authenticated)", exportFormat, u)
 	},
 }
 
 func init() {
+	scansExportCmd.Flags().StringVar(&format, "format", "csv", "Output format. Available options are csv, pdf, html, jira")
 	rootCmd.AddCommand(scansCmd)
 	scansCmd.AddCommand(scansListCmd)
 	scansCmd.AddCommand(scansLaunchCmd)

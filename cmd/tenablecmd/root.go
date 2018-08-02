@@ -33,6 +33,20 @@ var rootCmd = &cobra.Command{
 		queryOpts := &tenable.QueryOpts{Params: params}
 		client.QueryOpts = queryOpts
 
+		/*
+		var outputFd *os.File
+		var err error // ???
+		if outputFilename == "-" {
+			outputFd = os.Stdout
+		} else {
+			outputFd, err = outputs.NewFile(outputFilename)
+			if err != nil {
+				fmt.Println("Error creating output file:", err)
+				os.Exit(1)
+			}
+		}
+		*/
+
 		// TODO remove outputter entirely
 		outputter = outputs.NewOutputter(verbose, "", os.Stdout)
 	},

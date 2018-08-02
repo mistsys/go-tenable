@@ -1,108 +1,150 @@
 package outputs
 
 import (
-	"bytes"
-	"encoding/csv"
-	"errors"
-	"fmt"
+    "bytes"
+    "encoding/csv"
+    "errors"
+    "fmt"
+    "io"
 )
 
 type CsvAble interface {
-	ToCsvHeader() []string
-	ToCsvRecords() [][]string
+    ToCsvHeader() []string
+    ToCsvRecords() [][]string
 }
 
 type JiraTicket struct {
-	Source CsvAble
+    Source CsvAble
 }
 
 func (j *JiraTicket) Produce() (string, error) {
-	var buf bytes.Buffer
+    var buf bytes.Buffer
 
-	header := j.Source.ToCsvHeader()
-	headerLength := len(header)
-	records := j.Source.ToCsvRecords()
+    header := j.Source.ToCsvHeader()
+    headerLength := len(header)
+    records := j.Source.ToCsvRecords()
 
-	writer := csv.NewWriter(&buf)
-	if err := writer.Write(header); err != nil {
-		return "", errors.New("Failed to write CSV header!")
-	}
-	for _, record := range records {
-		// the csv writer library doesn't check this
-		if len(record) != headerLength {
-			return "", errors.New(fmt.Sprintf("CSV record and length mismatch: %q", record))
-		}
-		if err := writer.Write(record); err != nil {
-			return "", errors.New("Failed to write CSV!")
-		}
-		writer.Flush()
-	}
+    writer := csv.NewWriter(&buf)
+    if err := writer.Write(header); err != nil {
+        return "", errors.New("Failed to write CSV header!")
+    }
+    for _, record := range records {
+        // the csv writer library doesn't check this
+        if len(record) != headerLength {
+            return "", errors.New(fmt.Sprintf("CSV record and length mismatch: %q", record))
+        }
+        if err := writer.Write(record); err != nil {
+            return "", errors.New("Failed to write CSV!")
+        }
+        writer.Flush()
+    }
 
-	return string(buf.Bytes()), nil
+    return string(buf.Bytes()), nil
 }
 
-/*
-const (
-	assetVulnerabilitiesTicketTemplate = `not implemented`
-	csvTag                             = "csv"
-	jiraTicketHeader                   = "Summary,Description,Issue Type,Status,Component"
-)
-
-type JiraTicketOpts struct {
-	Summary     string `csv:"Summary"`
-	Description string `csv:"Description"`
-	IssueType   string `csv:"Issue Type"`
-	// Status      string `csv:"Status"` // not showing up in the importer for some reason
-	Component string `csv:"Component"`
+type CsvMapReader struct {
+    Reader *csv.Reader
+    Columns map[string]int
 }
 
-// reflect the struct, get all the csv tags, turn them into a csv header by intersposing with ","
-// this is not robust in any way
-func (ticket *JiraTicketOpts) Header() string {
-	var names []string
-
-	t := reflect.Indirect(reflect.ValueOf(ticket)).Type()
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		names = append(names, field.Tag.Get(csvTag))
-	}
-
-	return strings.Join(names, ",")
+type Record struct {
+    Reader *CsvMapReader
+    Values []string
 }
 
-func (ticket *JiraTicketOpts) Encode() string {
-	var vals []string
-
-	t := reflect.ValueOf(ticket).Elem()
-	for i := 0; i < t.NumField(); i++ { // is field order stable?
-		field := t.Field(i)
-		vals = append(vals, field.String())
-	}
-
-	return strings.Join(vals, ",")
+func NewCsvMapReader(r io.Reader) *CsvMapReader {
+    return &CsvMapReader{
+        Reader: csv.NewReader(r),
+        Columns: make(map[string]int),
+    }
 }
 
-// XXX I don't know that I like this
-func jiraTicket(data interface{}, opts JiraTicketOpts) (string, error) {
-	var b bytes.Buffer
-	b.WriteString("asdf")
-
-	t, err := template.New("huh").Parse(tmpl)
-	if err != nil {
-		return "", err
-	}
-	err = t.Execute(out, data)
-	return err
+// set the value of c.Columns to look up later
+func (c *CsvMapReader) InitColumns() error {
+    // should be the csv first line, though there're obviously no guards to prevent
+    // you from advancing the reader before this call
+    columns, err := c.Reader.Read()
+    if err != nil {
+        return err
+    }
+    for n, name := range(columns) {
+        c.Columns[name] = n
+    }
+    return nil
 }
 
-JiraTicketOpts defines fixed fields to use in the output CSV; if
-unc (v *VulnerabilityInfo) ToJiraTicket(opts *JiraTicketOpts) (string, error) {
- fmt.Println(jiraTicketHeader)
- vulns := v.Vulnerabilities
- for i := 0; i < len(vulns); i++ {
-	vuln := vulns[i]
-	fmt.Println(vuln.PluginFamily)
- }
- // return toJiraTicket(a, assetVulnerabilitiesTicketTemplate)
- return "", nil
-*/
+func (c *CsvMapReader) Read() (*Record, error) {
+    line, err := c.Reader.Read()
+    if err != nil {
+        return nil, err
+    }
+    return &Record{
+        Reader: c, // so we can refer to columns map later
+        Values: line,
+    }, nil
+}
+
+// Return the column value by name
+func (r *Record) GetColumn(name string) string {
+    index := r.Reader.Columns[name]
+    return r.Values[index] // handle index out of bounds
+}
+
+func (r *Record) GetColumns(columns []string) []string {
+    var ret []string
+    for _, column := range(columns) {
+        value := r.GetColumn(column)
+        ret = append(ret, value)
+    }
+    return ret
+}
+
+func (r *Record) ToJira() []string {
+    host := r.GetColumn("Host")
+    synopsis := r.GetColumn("Synopsis")
+    description := r.GetColumn("Description")
+    issueType := "Bug"
+    status := "Open"
+    summary := fmt.Sprintf("%s exposes a known vulnerability: %s", host, synopsis)
+    ticket := []string{summary, description, issueType, status}
+
+    return ticket
+}
+
+// take tenable csv export -> jira tickets
+// tenable produces scan export CSVs with these columns (export a file for yourself to see):
+// Plugin ID,CVE,CVSS,Risk,Host,Protocol,Port,Name,Synopsis,Description,Solution,See Also,Plugin Output,Asset UUID,Vulnerability State,IP Address,FQDN,NetBios,OS,MAC Address,Plugin Family,CVSS Base Score,CVSS Temporal Score,CVSS Temporal Vector,CVSS Vector,CVSS3 Base Score,CVSS3 Temporal Score,CVSS3 Temporal Vector,CVSS3 Vector,System Type,Host Start,Host End
+// TODO (actual future work): shouldn't build the whole csv in memory, better to return something like an io.Reader that produces on the fly
+var defaultJiraHeader []string = []string{"Summary", "Description", "Issue Type", "Status"}
+func WriteTenableToJira(in io.Reader, out io.Writer) error {
+    reader := NewCsvMapReader(in)
+    err := reader.InitColumns()
+    if err != nil {
+        return err
+    }
+
+    writer := csv.NewWriter(out)
+    if err := writer.Write(defaultJiraHeader); err != nil {
+        return errors.New("Failed to write CSV header!")
+    }
+
+    for {
+        record, err := reader.Read()
+        if err != nil {
+            if err == io.EOF {
+                break
+            }
+            return err
+        }
+        risk := record.GetColumn("Risk")
+        if risk != "None" {
+            ticket := record.ToJira()
+            if err := writer.Write(ticket); err != nil {
+                return errors.New("Failed to write CSV!")
+            }
+            writer.Flush()
+        }
+    }
+
+    return nil
+}
