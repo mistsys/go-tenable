@@ -39,6 +39,8 @@ Flags:
 Use "tenable [command] --help" for more information about a command.
 ```
 
+Export results of a scan to JIRA tickets with `tenable scans export $scan_id --format jira -o tickets.csv`.
+
 ## Contributing
 Add the `pre-push-hook` to your `.git/hooks/pre-push` file with `cp pre-push-hook .git/hooks/pre-push`
 

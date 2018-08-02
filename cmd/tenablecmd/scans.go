@@ -78,6 +78,10 @@ var scansExportCmd = &cobra.Command{
 	Short: "Export the results of a scan",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		if outputFilename == "-" && strings.ToLower(format) == "jira" {
+			fmt.Println("JIRA output requires an output file.")
+			os.Exit(1)
+		}
 		scanId, err := strconv.Atoi(args[0])
 		if err != nil {
 			fmt.Println("SCAN_ID must be an int. Got:", args[0])
