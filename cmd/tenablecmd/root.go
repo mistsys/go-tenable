@@ -26,25 +26,15 @@ var rootCmd = &cobra.Command{
 	Short: "A CLI for the Tenable API",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		client = tenable.NewClient(viper.GetString("accesskey"), viper.GetString("secretkey"))
-		// using viper means the cobra *Var flag options don't actually populate the global variables from config files; if you
-		// to manually set them anyway, we'll just manually set them...
+		// using viper means the cobra *Var flag options don't actually populate the global variables from config files
+		// if we have to manually set them anyway, we'll just manually set them
 		debug := viper.GetBool("debug")
 		client.Debug = debug
-		queryOpts := &tenable.TenableQueryOpts{Params: params}
+		queryOpts := &tenable.QueryOpts{Params: params}
 		client.QueryOpts = queryOpts
 
-		var outputFd *os.File
-		var err error // ???
-		if outputFilename == "-" {
-			outputFd = os.Stdout
-		} else {
-			outputFd, err = outputs.NewFile(outputFilename)
-			if err != nil {
-				fmt.Println("Error creating output file:", err)
-				os.Exit(1)
-			}
-		}
-		outputter = outputs.NewOutputter(verbose, viper.GetString("format"), outputFd)
+		// TODO remove outputter entirely
+		outputter = outputs.NewOutputter(verbose, "", os.Stdout)
 	},
 }
 

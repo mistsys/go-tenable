@@ -1,6 +1,7 @@
 package tenable
 
 import (
+	// "encoding/csv"
 	"encoding/json"
 	"net/url"
 	"strconv"
@@ -52,7 +53,7 @@ func kvToQuery(s string) string {
 	return opts.Encode()
 }
 
-// unused
-func checkPayload(payload []byte) error {
-	return json.Unmarshal(payload, nil)
+// take tenable csv export -> jira tickets; types are placeholders
+func tenableToJira(tenableCsv []string) (string, error) {
+	return "", nil
 }

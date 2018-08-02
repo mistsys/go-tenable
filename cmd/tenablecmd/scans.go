@@ -3,13 +3,15 @@ package tenablecmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/mistsys/go-tenable/outputs"
 )
-
-var targets string
 
 var scansCmd = &cobra.Command{
 	Use:   "scans COMMAND",
@@ -69,10 +71,67 @@ var scansLaunchCmd = &cobra.Command{
 	},
 }
 
-func init() {
-	scansListCmd.Flags().StringVar(&targets, "targets", "", "List of targets to scan instead of scan default")
+var scansExportCmd = &cobra.Command{
+	Use:   "export SCAN_ID",
+	Short: "Export the results of a scan",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		scanId, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("SCAN_ID must be an int. Got:", args[0])
+			os.Exit(1)
+		}
 
+		format := viper.GetString("format")
+		exportRequest, _, err := client.Scans.ExportRequest(context.Background(), scanId, format)
+		if err != nil {
+			fmt.Println("Error initiating export:", err)
+			os.Exit(1)
+		}
+
+		fileId := exportRequest.File
+		fmt.Printf("Started export request with file id: %d\n", fileId)
+		fmt.Print("Waiting for file to finish generating.")
+
+		for {
+			// poll for export status
+			time.Sleep(1 * time.Second)
+			fmt.Print(".")
+			exportStatus, _, err := client.Scans.ExportStatus(context.Background(), scanId, fileId)
+			if err != nil {
+				fmt.Println("Error checking export status::", err)
+				fmt.Println("It may still complete successfully, but we're going to stop polling.")
+				os.Exit(1)
+			}
+
+			if exportStatus.Status == "ready" {
+				fmt.Println()
+				break
+			}
+		}
+
+		// if we're here, it's ready
+		u := fmt.Sprintf("/scans/%d/export/%d/download", scanId, fileId)
+		if outputFilename != "-" {
+			fd, err := outputs.NewFile(outputFilename)
+			defer fd.Close()
+			if err != nil {
+				fmt.Printf("File error attempting to open %s: %v\n", outputFilename, err)
+			} else {
+				resp, _ := client.PlainGet(context.Background(), u)
+				defer resp.Body.Close()
+				n, _ := io.Copy(fd, resp.Body)
+				fmt.Printf("%d bytes written to %s\n", n, outputFilename)
+				os.Exit(0)
+			}
+		}
+		fmt.Printf("\nReport is ready at %s (must be authenticated)", u)
+	},
+}
+
+func init() {
 	rootCmd.AddCommand(scansCmd)
 	scansCmd.AddCommand(scansListCmd)
 	scansCmd.AddCommand(scansLaunchCmd)
+	scansCmd.AddCommand(scansExportCmd)
 }
