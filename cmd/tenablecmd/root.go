@@ -58,17 +58,16 @@ func init() {
 	rootCmd.PersistentFlags().StringP("secretkey", "s", "", "Tenable Secret Key (required)")
 	rootCmd.MarkFlagRequired("accesskey") // XXX these calls don't do anything if you use viper
 	rootCmd.MarkFlagRequired("secretkey") // XXX these calls don't do anything if you use viper
-	rootCmd.PersistentFlags().String("impersonate", "", "User to impersonate")
+	// rootCmd.PersistentFlags().String("impersonate", "", "User to impersonate")
 
 	// request params
-	rootCmd.PersistentFlags().StringVar(&params, "params", "", "Query parameters given as a string of \"key=value,key=value,...\"")
+	// rootCmd.PersistentFlags().StringVar(&params, "params", "", "Query parameters given as a string of \"key=value,key=value,...\"")
 	// TODO next two
-	rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
-	rootCmd.PersistentFlags().String("filters", "", "Filters")
+	// rootCmd.PersistentFlags().String("payload", "", "JSON payload given as a string '{\"key\": value ... }'")
+	// rootCmd.PersistentFlags().String("filters", "", "Filters")
 
 	// output args
 	rootCmd.PersistentFlags().StringVarP(&outputFilename, "output-file", "o", "-", "Output file. Passing `-` writes to stdout (default)")
-	rootCmd.PersistentFlags().String("format", "json", "Output format. Available options are `json` (default) and `jira` (not available for all commands)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().Bool("debug", false, "Run in debug mode (dump raw request bodies)")
 
@@ -77,7 +76,6 @@ func init() {
 	flags := rootCmd.PersistentFlags()
 	viper.BindPFlag("accesskey", flags.Lookup("accesskey"))
 	viper.BindPFlag("secretkey", flags.Lookup("secretkey"))
-	viper.BindPFlag("format", flags.Lookup("format"))
 	viper.BindPFlag("debug", flags.Lookup("debug"))
 	cobra.OnInitialize(initConfig)
 }
