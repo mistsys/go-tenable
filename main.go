@@ -1,6 +1,6 @@
 package main
 
-import "github.com/mistsys/go-tenable/cmd/tenablecmd"
+import "github.com/mistsys/go-tenable/tenablecmd"
 
 func main() {
 	tenablecmd.Execute()
