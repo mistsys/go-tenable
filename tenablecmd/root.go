@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	tenable "github.com/mistsys/go-tenable/client"
+	"github.com/mistsys/go-tenable/tenable"
 	"github.com/mistsys/go-tenable/outputs"
 )
 
