@@ -1,0 +1,7 @@
+# How to run terraform
+
+```
+terraform plan -var account_id=<account_id> -var tenable_linking_key=foo -out terraform.plan
+```
+
+check the variables.tf on what else you can set or override with tfvars
