@@ -1,46 +1,11 @@
 package outputs
 
 import (
-    "bytes"
     "encoding/csv"
     "errors"
     "fmt"
     "io"
 )
-
-type CsvAble interface {
-    ToCsvHeader() []string
-    ToCsvRecords() [][]string
-}
-
-type JiraTicket struct {
-    Source CsvAble
-}
-
-func (j *JiraTicket) Produce() (string, error) {
-    var buf bytes.Buffer
-
-    header := j.Source.ToCsvHeader()
-    headerLength := len(header)
-    records := j.Source.ToCsvRecords()
-
-    writer := csv.NewWriter(&buf)
-    if err := writer.Write(header); err != nil {
-        return "", errors.New("Failed to write CSV header!")
-    }
-    for _, record := range records {
-        // the csv writer library doesn't check this
-        if len(record) != headerLength {
-            return "", errors.New(fmt.Sprintf("CSV record and length mismatch: %q", record))
-        }
-        if err := writer.Write(record); err != nil {
-            return "", errors.New("Failed to write CSV!")
-        }
-        writer.Flush()
-    }
-
-    return string(buf.Bytes()), nil
-}
 
 type CsvMapReader struct {
     Reader *csv.Reader

@@ -110,6 +110,25 @@ type ScansExportStatus struct {
     Status string `json:"status"`
 }
 
+type ScansCreate struct {
+    Settings struct {
+        Name        string `json:"name"`
+        Description string `json:"description"`
+        PolicyId    string `json:"policy_id"`
+        FolderId    string `json:"folder_id"`
+        ScannerId   string `json:"scanner_id"`
+        Enabled     string `json:"enabled"`
+        Launch      string `json:"launch"`
+        Starttime   string `json:"starttime"`
+        RRules      string `json:"rrules"`
+        Timezone    string `json:"timezone"`
+        TextTargets string `json:"text_targets"`
+        FileTargets string `json:"file_targets"`
+        Emails      string `json:"emails"`
+        ACLs        string `json:"acls"`
+    } `json:"settings"`
+}
+
 func (s *ScansService) List(ctx context.Context) (*Scans, *Response, error) {
     list := &Scans{}
     response, err := s.client.Get(ctx, "scans", nil, list)
@@ -125,6 +144,28 @@ func (s *ScansService) Detail(ctx context.Context, scanId int) (*ScanDetail, *Re
 
 func (s *ScansService) Launch(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
     u := fmt.Sprintf("scans/%d/launch", scanId)
+    launch := &ScansLaunch{}
+    response, err := s.client.Post(ctx, u, nil, nil, launch)
+    return launch, response, err
+}
+
+// TODO pause/resume/stop don't have explicit return specs, just http codes (which, honestly, i prefer)
+func (s *ScansService) Pause(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+    u := fmt.Sprintf("scans/%d/pause", scanId)
+    launch := &ScansLaunch{}
+    response, err := s.client.Post(ctx, u, nil, nil, launch)
+    return launch, response, err
+}
+
+func (s *ScansService) Resume(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+    u := fmt.Sprintf("scans/%d/resume", scanId)
+    launch := &ScansLaunch{}
+    response, err := s.client.Post(ctx, u, nil, nil, launch)
+    return launch, response, err
+}
+
+func (s *ScansService) Stop(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+    u := fmt.Sprintf("scans/%d/stop", scanId)
     launch := &ScansLaunch{}
     response, err := s.client.Post(ctx, u, nil, nil, launch)
     return launch, response, err

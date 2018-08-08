@@ -132,13 +132,16 @@ var scansExportCmd = &cobra.Command{
 				resp, _ := client.PlainGet(context.Background(), u)
 				defer resp.Body.Close()
 				if strings.ToLower(format) == "jira" {
-					outputs.WriteTenableToJira(resp.Body, fd)
+					err = outputs.WriteTenableToJira(resp.Body, fd)
 				} else {
 					_, err := io.Copy(fd, resp.Body)
 					if err != nil {
 						fmt.Printf("Error writing to %s: %v\n", outputFilename, err)
 						os.Exit(1)
 					}
+				}
+				if err != nil {
+					fmt.Printf("File error attempting to write %s: %v\n", outputFilename, err)
 				}
 				fmt.Printf("Wrote to %s\n", outputFilename)
 				os.Exit(0)

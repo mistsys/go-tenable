@@ -46,15 +46,19 @@ EOF
 
 resource "aws_iam_policy_attachment" "nessus_server_role_attach" {
   name = "nessus_server_policy_attachment"
-  roles = ["${aws_iam_role.nessus_server_role}"]
+  roles = ["${aws_iam_role.nessus_server_role.name}"]
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ReadOnlyAccess"
 }
 
+resource "aws_iam_instance_profile" "nessus_server_instance_profile" {
+  name = "nessus_server_instance_profile"
+  role = "${aws_iam_role.nessus_server_role.name}"
+}
 
 resource "aws_instance" "nessus_server"{
   ami = "${data.aws_ami.nessus_scanner.id}"
-  instance_type = ${var.instance_type}
-  roles = [ "${aws_iam_role.nessus_server_role.name}"]
+  instance_type = "${var.instance_type}"
+  iam_instance_profile = "${aws_iam_instance_profile.nessus_server_instance_profile.id}"
   # TODO: You want to do it in a VPC
   security_groups = ["${aws_security_group.nessus_scanner.name}"]
   user_data= <<EOF

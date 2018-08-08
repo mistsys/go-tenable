@@ -9,21 +9,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-// 30 Jul TODO this should be a "template processor" with a "jira template" for each data type
-func jiraProcessor(data interface{}) (string, error) {
-	if ticketSource, ok := data.(CsvAble); ok == true {
-		ticket := &JiraTicket{Source: ticketSource}
-		csvString, err := ticket.Produce()
-		// not sure if should return error at all
-		if err != nil {
-			fmt.Printf("%v", err)
-			return "", errors.Wrap(err, "Error producing CSV")
-		}
-		return csvString, err
-	}
-	return "", errors.New("This datatype does not support JIRA CSV output")
-}
-
 // FIXME
 // could I make default in the cmd actually be something like *raw* and pass the response.BodyJson() through?
 // then Output takes some sort of raw as an input, or it gets tagged onto the input struct somehow
@@ -67,8 +52,8 @@ func (o *Outputter) Output(data interface{}) error {
 	switch o.Format {
 	// I don't like that the Output function defines processors this way; I'd *prefer* that the "constructor" takes in a map
 	// of processors that can be accessed at runtime
-	case "jira":
-		msg, err = jiraProcessor(data)
+	// case "jira":
+		// msg, err = jiraProcessor(data)
 	case "json":
 		msg, err = jsonProcessor(data)
 	// case "template":
