@@ -2,11 +2,13 @@ package tenable
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/url"
 	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // NumericBool type because Tenable sometimes returns
@@ -50,4 +52,18 @@ func kvToQuery(s string) string {
 		}
 	}
 	return opts.Encode()
+}
+
+// GROSS should not be here
+func ReadScanConfig(configFile string) (*ScansCreateConfig, error) {
+	yamlFile, err := ioutil.ReadFile(configFile)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to read %s", configFile)
+	}
+	config := &ScansCreateConfig{}
+	err = yaml.Unmarshal(yamlFile, config)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Failed to parse %s", configFile)
+	}
+	return config, nil
 }

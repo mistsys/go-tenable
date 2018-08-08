@@ -1,4 +1,3 @@
-// TODO consider renaming editor to template
 package tenable
 
 import (

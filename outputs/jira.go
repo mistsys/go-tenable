@@ -79,7 +79,7 @@ func (r *Record) ToJira() []string {
 // take tenable csv export -> jira tickets
 // tenable produces scan export CSVs with these columns (export a file for yourself to see):
 // Plugin ID,CVE,CVSS,Risk,Host,Protocol,Port,Name,Synopsis,Description,Solution,See Also,Plugin Output,Asset UUID,Vulnerability State,IP Address,FQDN,NetBios,OS,MAC Address,Plugin Family,CVSS Base Score,CVSS Temporal Score,CVSS Temporal Vector,CVSS Vector,CVSS3 Base Score,CVSS3 Temporal Score,CVSS3 Temporal Vector,CVSS3 Vector,System Type,Host Start,Host End
-// TODO (actual future work): shouldn't build the whole csv in memory, better to return something like an io.Reader that produces on the fly
+// future: shouldn't build the whole csv in memory, better to return something like an io.Reader that produces on the fly. That's a thing you can do with go interfaces, right?
 var defaultJiraHeader []string = []string{"Summary", "Description", "Issue Type", "Status"}
 func WriteTenableToJira(in io.Reader, out io.Writer) error {
     reader := NewCsvMapReader(in)

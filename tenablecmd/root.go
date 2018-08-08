@@ -67,7 +67,7 @@ func init() {
 	// rootCmd.PersistentFlags().String("filters", "", "Filters")
 
 	// output args
-	rootCmd.PersistentFlags().StringVarP(&outputFilename, "output-file", "o", "-", "Output file. Passing `-` writes to stdout (default)")
+	rootCmd.PersistentFlags().StringVarP(&outputFilename, "output-file", "o", "-", "Output file. Passing `-` writes to stdout")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().Bool("debug", false, "Run in debug mode (dump raw request bodies)")
 

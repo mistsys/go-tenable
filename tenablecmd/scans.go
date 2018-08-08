@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/mistsys/go-tenable/outputs"
+	"github.com/mistsys/go-tenable/tenable" // just here for utils; should move utils out to its own thing
 )
 
 var format string
@@ -51,6 +52,26 @@ var scansListCmd = &cobra.Command{
 			// fmt.Printf("%v", lst)
 			outputter.Output(response.BodyJson())
 		}
+	},
+}
+
+var scansCreateCmd = &cobra.Command{
+	Use:   "create CONFIG_FILE",
+	Short: "Create a scan using a YAML configuration file",
+	Long: "insert long description here!",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		config, err := tenable.ReadScanConfig(args[0])
+		if err != nil {
+			fmt.Println("Error reading config file %s: %v", args[0], err)
+			os.Exit(1)
+		}
+		err = client.Scans.Create(context.Background(), config)
+		if err != nil {
+			fmt.Println("Error creating scan:", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%v", config)
 	},
 }
 
@@ -212,6 +233,7 @@ func init() {
 	scansExportCmd.Flags().StringVar(&format, "format", "csv", "Output format. Available options are csv, pdf, html, jira")
 	rootCmd.AddCommand(scansCmd)
 	scansCmd.AddCommand(scansListCmd)
+	scansCmd.AddCommand(scansCreateCmd)
 	scansCmd.AddCommand(scansLaunchCmd)
 	scansCmd.AddCommand(scansPauseCmd)
 	scansCmd.AddCommand(scansResumeCmd)

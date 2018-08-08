@@ -13,6 +13,8 @@ var templateType string
 var editorRootCmd = &cobra.Command{
 	Use:   "editor COMMAND",
 	Short: "Use the Tenable editor API",
+	// editor policy templates interaction will necessitate removal of this alias
+	Aliases: []string{"templates"},
 	Args:  cobra.MinimumNArgs(1),
 }
 

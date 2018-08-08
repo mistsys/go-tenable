@@ -1,7 +1,9 @@
 package tenable
 
 import (
+	"bytes"
     "context"
+	"encoding/json"
     "fmt"
     "strings"
 )
@@ -110,23 +112,28 @@ type ScansExportStatus struct {
     Status string `json:"status"`
 }
 
-type ScansCreate struct {
+// lots of yaml tags on this one because a user likely needs yaml if making scans from the cli.
+// if you're doing just a few targets, or very simple scan setup, I actually recommend using the web UI for this partcular task
+type ScansCreateConfig struct {
+	// editor template uuid (see api docs for /scans/create, /editor/list)
+	// 'template' refers to the scan types, like "Basic Network Scan", "Advanced Network Scan", etc
+	TemplateUUID string `yaml:"template_uuid" json:"uuid"` // required
     Settings struct {
-        Name        string `json:"name"`
-        Description string `json:"description"`
-        PolicyId    string `json:"policy_id"`
-        FolderId    string `json:"folder_id"`
-        ScannerId   string `json:"scanner_id"`
-        Enabled     string `json:"enabled"`
-        Launch      string `json:"launch"`
-        Starttime   string `json:"starttime"`
-        RRules      string `json:"rrules"`
-        Timezone    string `json:"timezone"`
-        TextTargets string `json:"text_targets"`
-        FileTargets string `json:"file_targets"`
-        Emails      string `json:"emails"`
-        ACLs        string `json:"acls"`
-    } `json:"settings"`
+		Name        string        `yaml:"name" json:"name"` // required
+		Description string        `yaml:"description" json:"description"`
+		PolicyId    int           `yaml:"policy_id" json:"policy_id"`
+		FolderId    int           `yaml:"folder_id" json:"folder_id"`
+		ScannerId   int           `yaml:"scanner_id" json:"scanner_id"` // *not* required
+		Enabled     bool          `yaml:"enabled" json:"enabled"` // required
+		Launch      string        `yaml:"launch" json:"launch"`
+		Starttime   string        `yaml:"starttime" json:"starttime"`
+		RRules      string        `yaml:"rrules" json:"rrules"`
+		Timezone    string        `yaml:"timezone" json:"timezone"`
+		TextTargets []string      `yaml:"text_targets" json:"text_targets"` // required
+		FileTargets string        `yaml:"file_targets" json:"file_targets"`
+		Emails      string        `yaml:"emails" json:"emails"`
+		ACLs        []interface{} `yaml:"acls" json:"acls"` // don't know actual type, docs don't specify
+	} `yaml:"settings" json:"settings"`
 }
 
 func (s *ScansService) List(ctx context.Context) (*Scans, *Response, error) {
@@ -149,7 +156,6 @@ func (s *ScansService) Launch(ctx context.Context, scanId int, targets []string)
     return launch, response, err
 }
 
-// TODO pause/resume/stop don't have explicit return specs, just http codes (which, honestly, i prefer)
 func (s *ScansService) Pause(ctx context.Context, scanId int, targets []string) error {
     u := fmt.Sprintf("scans/%d/pause", scanId)
     _, err := s.client.Post(ctx, u, nil, nil, nil)
@@ -166,6 +172,18 @@ func (s *ScansService) Stop(ctx context.Context, scanId int, targets []string) e
     u := fmt.Sprintf("scans/%d/stop", scanId)
     _, err := s.client.Post(ctx, u, nil, nil, nil)
     return err
+}
+
+// XXX named return values here. would be best to use that everywhere, or nowhere ;(
+func (s *ScansService) Create(ctx context.Context, config *ScansCreateConfig) error {
+	// XXX marshalling should not be caller's responsibility; should happen in Post on its own
+	jsonBytes, err := json.Marshal(config)
+	if err != nil {
+		return err
+	}
+	body := bytes.NewReader(jsonBytes)
+	_, err = s.client.Post(ctx, "scans", nil, body, nil)
+	return err
 }
 
 func (s *ScansService) ExportRequest(ctx context.Context, scanId int, format string) (*ScansExportRequest, *Response, error) {
