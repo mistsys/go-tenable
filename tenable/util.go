@@ -54,7 +54,7 @@ func kvToQuery(s string) string {
 	return opts.Encode()
 }
 
-// GROSS should not be here
+// GROSS should not be here. Also see: random YAML tags in the config strut
 func ReadScanConfig(configFile string) (*ScansCreateConfig, error) {
 	yamlFile, err := ioutil.ReadFile(configFile)
 	if err != nil {

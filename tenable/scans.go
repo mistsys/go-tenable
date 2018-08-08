@@ -117,23 +117,23 @@ type ScansExportStatus struct {
 type ScansCreateConfig struct {
 	// editor template uuid (see api docs for /scans/create, /editor/list)
 	// 'template' refers to the scan types, like "Basic Network Scan", "Advanced Network Scan", etc
-	TemplateUUID string `yaml:"template_uuid" json:"uuid"` // required
+	TemplateUUID string `yaml:"template_uuid,omitempty" json:"uuid,omitempty"` // required
     Settings struct {
-		Name        string        `yaml:"name" json:"name"` // required
-		Description string        `yaml:"description" json:"description"`
-		PolicyId    int           `yaml:"policy_id" json:"policy_id"`
-		FolderId    int           `yaml:"folder_id" json:"folder_id"`
-		ScannerId   int           `yaml:"scanner_id" json:"scanner_id"` // *not* required
-		Enabled     bool          `yaml:"enabled" json:"enabled"` // required
-		Launch      string        `yaml:"launch" json:"launch"`
-		Starttime   string        `yaml:"starttime" json:"starttime"`
-		RRules      string        `yaml:"rrules" json:"rrules"`
-		Timezone    string        `yaml:"timezone" json:"timezone"`
-		TextTargets []string      `yaml:"text_targets" json:"text_targets"` // required
-		FileTargets string        `yaml:"file_targets" json:"file_targets"`
-		Emails      string        `yaml:"emails" json:"emails"`
-		ACLs        []interface{} `yaml:"acls" json:"acls"` // don't know actual type, docs don't specify
-	} `yaml:"settings" json:"settings"`
+		Name        string        `yaml:"name,omitempty" json:"name,omitempty"` // required
+		Description string        `yaml:"description,omitempty" json:"description,omitempty"`
+		PolicyId    int           `yaml:"policy_id,omitempty" json:"policy_id,omitempty"`
+		FolderId    int           `yaml:"folder_id,omitempty" json:"folder_id,omitempty"`
+		ScannerId   int           `yaml:"scanner_id,omitempty" json:"scanner_id,omitempty"` // *not* required
+		Enabled     bool          `yaml:"enabled,omitempty" json:"enabled,omitempty"` // required
+		Launch      string        `yaml:"launch,omitempty" json:"launch,omitempty"`
+		Starttime   string        `yaml:"starttime,omitempty" json:"starttime,omitempty"`
+		RRules      string        `yaml:"rrules,omitempty" json:"rrules,omitempty"`
+		Timezone    string        `yaml:"timezone,omitempty" json:"timezone,omitempty"`
+		TextTargets []string      `yaml:"text_targets,omitempty" json:"text_targets,omitempty"` // required
+		FileTargets string        `yaml:"file_targets,omitempty" json:"file_targets,omitempty"`
+		Emails      string        `yaml:"emails,omitempty" json:"emails,omitempty"`
+		ACLs        []interface{} `yaml:"acls,omitempty" json:"acls,omitempty"` // don't know actual type, docs don't specify
+	} `yaml:"settings,omitempty" json:"settings,omitempty"`
 }
 
 func (s *ScansService) List(ctx context.Context) (*Scans, *Response, error) {
