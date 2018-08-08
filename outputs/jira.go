@@ -89,10 +89,12 @@ func WriteTenableToJira(in io.Reader, out io.Writer) error {
     }
 
     writer := csv.NewWriter(out)
-    if err := writer.Write(defaultJiraHeader); err != nil {
+	
+	if err := writer.Write(defaultJiraHeader); err != nil {
         return errors.New("Failed to write CSV header!")
     }
 
+	writer.Flush()
     for {
         record, err := reader.Read()
         if err != nil {

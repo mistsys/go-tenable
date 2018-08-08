@@ -1,4 +1,3 @@
-variable "account_id" {}
 variable "hostname" {default = "Nessus Scanner"}
 variable "region" { default = "us-east-1"}
 variable "iam_role" { default= "TenableIO" }
