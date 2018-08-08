@@ -66,10 +66,67 @@ var scansLaunchCmd = &cobra.Command{
 		}
 		_, response, err := client.Scans.Launch(context.Background(), scanId, nil)
 		if err != nil {
-			fmt.Println("Error launching scans:", err)
+			fmt.Println("Error launching scan:", err)
 			os.Exit(1)
 		}
 		outputter.Output(response.BodyJson())
+	},
+}
+
+var scansPauseCmd = &cobra.Command{
+	Use:   "pause SCAN_ID",
+	Short: "Pause a scan",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		scanId, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("SCAN_ID must be an int. Got:", args[0])
+			os.Exit(1)
+		}
+		err = client.Scans.Pause(context.Background(), scanId, nil)
+		if err != nil {
+			fmt.Println("Error pausing scan:", err)
+			os.Exit(1)
+		}
+		outputter.Output("Scan paused.")
+	},
+}
+
+var scansResumeCmd = &cobra.Command{
+	Use:   "resume SCAN_ID",
+	Short: "Resume a scan",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		scanId, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("SCAN_ID must be an int. Got:", args[0])
+			os.Exit(1)
+		}
+		err = client.Scans.Resume(context.Background(), scanId, nil)
+		if err != nil {
+			fmt.Println("Error resuming scan:", err)
+			os.Exit(1)
+		}
+		outputter.Output("Scan resumed.")
+	},
+}
+
+var scansStopCmd = &cobra.Command{
+	Use:   "stop SCAN_ID",
+	Short: "Stop a scan",
+	Args:  cobra.ExactArgs(1),
+	Run: func(cmd *cobra.Command, args []string) {
+		scanId, err := strconv.Atoi(args[0])
+		if err != nil {
+			fmt.Println("SCAN_ID must be an int. Got:", args[0])
+			os.Exit(1)
+		}
+		err = client.Scans.Stop(context.Background(), scanId, nil)
+		if err != nil {
+			fmt.Println("Error stopping scan:", err)
+			os.Exit(1)
+		}
+		outputter.Output("Scan stopped.")
 	},
 }
 
@@ -156,5 +213,8 @@ func init() {
 	rootCmd.AddCommand(scansCmd)
 	scansCmd.AddCommand(scansListCmd)
 	scansCmd.AddCommand(scansLaunchCmd)
+	scansCmd.AddCommand(scansPauseCmd)
+	scansCmd.AddCommand(scansResumeCmd)
+	scansCmd.AddCommand(scansStopCmd)
 	scansCmd.AddCommand(scansExportCmd)
 }

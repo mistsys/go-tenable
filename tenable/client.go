@@ -131,15 +131,16 @@ func (t *Client) Do(ctx context.Context, req *http.Request, dest interface{}) (*
 	if err != nil { // hm
 		return response, errors.Wrapf(err, "Failed to do request")
 	}
-	if res.StatusCode >= 400 {
-		return response, errors.New(fmt.Sprintf("Error response from server: %d", res.StatusCode))
-	}
 
 	buf, err := ioutil.ReadAll(res.Body)
+	response.RawBody = buf
 	if err != nil {
 		return response, errors.Wrapf(err, "Failed to read response.")
 	}
-	response.RawBody = buf
+
+	if res.StatusCode >= 400 {
+		return response, errors.New(fmt.Sprintf("Error response from server: %q", response.RawBody))
+	}
 
 	if t.Debug {
 		log.Printf("DEBUG body: %q", buf)
@@ -147,9 +148,13 @@ func (t *Client) Do(ctx context.Context, req *http.Request, dest interface{}) (*
 
 	defer res.Body.Close()
 
-	err = json.Unmarshal(buf, dest)
-	if err != nil {
-		return response, errors.Wrapf(err, "Failed to unmarshal")
+	if dest != nil {
+		err = json.Unmarshal(buf, dest)
+		if err != nil {
+			return response, errors.Wrapf(err, "Failed to unmarshal")
+		}
+	} else {
+		err = nil
 	}
 
 	return response, err

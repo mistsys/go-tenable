@@ -150,25 +150,22 @@ func (s *ScansService) Launch(ctx context.Context, scanId int, targets []string)
 }
 
 // TODO pause/resume/stop don't have explicit return specs, just http codes (which, honestly, i prefer)
-func (s *ScansService) Pause(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+func (s *ScansService) Pause(ctx context.Context, scanId int, targets []string) error {
     u := fmt.Sprintf("scans/%d/pause", scanId)
-    launch := &ScansLaunch{}
-    response, err := s.client.Post(ctx, u, nil, nil, launch)
-    return launch, response, err
+    _, err := s.client.Post(ctx, u, nil, nil, nil)
+    return err
 }
 
-func (s *ScansService) Resume(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+func (s *ScansService) Resume(ctx context.Context, scanId int, targets []string) error {
     u := fmt.Sprintf("scans/%d/resume", scanId)
-    launch := &ScansLaunch{}
-    response, err := s.client.Post(ctx, u, nil, nil, launch)
-    return launch, response, err
+    _, err := s.client.Post(ctx, u, nil, nil, nil)
+    return err
 }
 
-func (s *ScansService) Stop(ctx context.Context, scanId int, targets []string) (*ScansLaunch, *Response, error) {
+func (s *ScansService) Stop(ctx context.Context, scanId int, targets []string) error {
     u := fmt.Sprintf("scans/%d/stop", scanId)
-    launch := &ScansLaunch{}
-    response, err := s.client.Post(ctx, u, nil, nil, launch)
-    return launch, response, err
+    _, err := s.client.Post(ctx, u, nil, nil, nil)
+    return err
 }
 
 func (s *ScansService) ExportRequest(ctx context.Context, scanId int, format string) (*ScansExportRequest, *Response, error) {
