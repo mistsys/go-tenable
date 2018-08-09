@@ -210,7 +210,9 @@ var scansExportCmd = &cobra.Command{
 				resp, _ := client.PlainGet(context.Background(), u)
 				defer resp.Body.Close()
 				if strings.ToLower(format) == "jira" {
-					err = outputs.WriteTenableToJira(resp.Body, fd)
+					var written, skipped int // my apologies
+					written, skipped, err = outputs.WriteTenableToJira(resp.Body, fd)
+					fmt.Printf("%d tickets, %d skipped due to risk value of 'None'\n", written, skipped)
 				} else {
 					_, err := io.Copy(fd, resp.Body)
 					if err != nil {

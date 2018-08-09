@@ -132,7 +132,7 @@ type ScansCreateConfig struct {
 		TextTargets []string      `yaml:"text_targets,omitempty" json:"text_targets,omitempty"` // required
 		FileTargets string        `yaml:"file_targets,omitempty" json:"file_targets,omitempty"`
 		Emails      string        `yaml:"emails,omitempty" json:"emails,omitempty"`
-		ACLs        []interface{} `yaml:"acls,omitempty" json:"acls,omitempty"` // don't know actual type, docs don't specify
+		ACLs        []interface{} `yaml:"acls,omitempty" json:"acls,omitempty"` // docs don't specify type
 	} `yaml:"settings,omitempty" json:"settings,omitempty"`
 }
 

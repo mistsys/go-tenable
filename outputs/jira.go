@@ -81,37 +81,40 @@ func (r *Record) ToJira() []string {
 // Plugin ID,CVE,CVSS,Risk,Host,Protocol,Port,Name,Synopsis,Description,Solution,See Also,Plugin Output,Asset UUID,Vulnerability State,IP Address,FQDN,NetBios,OS,MAC Address,Plugin Family,CVSS Base Score,CVSS Temporal Score,CVSS Temporal Vector,CVSS Vector,CVSS3 Base Score,CVSS3 Temporal Score,CVSS3 Temporal Vector,CVSS3 Vector,System Type,Host Start,Host End
 // future: shouldn't build the whole csv in memory, better to return something like an io.Reader that produces on the fly. That's a thing you can do with go interfaces, right?
 var defaultJiraHeader []string = []string{"Summary", "Description", "Issue Type", "Status"}
-func WriteTenableToJira(in io.Reader, out io.Writer) error {
+func WriteTenableToJira(in io.Reader, out io.Writer) (written int, skipped int, err error) {
     reader := NewCsvMapReader(in)
-    err := reader.InitColumns()
+    err = reader.InitColumns()
     if err != nil {
-        return err
+        return
     }
 
     writer := csv.NewWriter(out)
 	
-	if err := writer.Write(defaultJiraHeader); err != nil {
-        return errors.New("Failed to write CSV header!")
+	if err = writer.Write(defaultJiraHeader); err != nil {
+        err = errors.New("Failed to write CSV header!")
+		return
     }
 
-	writer.Flush()
     for {
         record, err := reader.Read()
         if err != nil {
             if err == io.EOF {
                 break
             }
-            return err
         }
         risk := record.GetColumn("Risk")
         if risk != "None" {
             ticket := record.ToJira()
             if err := writer.Write(ticket); err != nil {
-                return errors.New("Failed to write CSV!")
+                err = errors.New("Failed to write CSV!")
+				break
             }
-            writer.Flush()
-        }
+			written++
+        } else {
+			skipped++
+		}
     }
 
-    return nil
+	writer.Flush()
+    return
 }
