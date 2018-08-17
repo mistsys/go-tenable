@@ -4,3 +4,5 @@ variable "iam_role" { default= "TenableIO" }
 # this is the key you got from Tenable
 variable "tenable_linking_key" {}
 variable "instance_type" { default = "t2.medium" }
+variable "vpc_id" {}
+variable "subnet_id" {}
