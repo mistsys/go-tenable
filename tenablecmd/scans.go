@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
 	"github.com/mistsys/go-tenable/outputs"
 	"github.com/mistsys/go-tenable/tenable" // just here for utils; should move utils out to its own thing
+	"github.com/spf13/cobra"
 )
 
 var format string
@@ -58,12 +58,12 @@ var scansListCmd = &cobra.Command{
 var scansCreateCmd = &cobra.Command{
 	Use:   "create CONFIG_FILE",
 	Short: "Create a scan using a YAML configuration file",
-	Long: "insert long description here!",
+	Long:  "insert long description here!",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := tenable.ReadScanConfig(args[0])
 		if err != nil {
-			fmt.Println("Error reading config file %s: %v", args[0], err)
+			fmt.Printf("Error reading config file %s: %v\n", args[0], err)
 			os.Exit(1)
 		}
 		err = client.Scans.Create(context.Background(), config)
