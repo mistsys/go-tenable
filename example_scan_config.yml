@@ -1,0 +1,11 @@
+template_uuid: 731a8e52-3ea6-a291-ec0a-d2ff0619c19d7bd788d6be818b65 # basic network scan
+settings:
+  name: example scan
+  description: scan created using a yaml config file
+  scanner_id: 123456
+  enabled: false
+  text_targets:
+    - 10.0.0.1
+    - 10.0.0.2
+    - 10.0.0.3
+    - 10.0.0.4
