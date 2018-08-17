@@ -7,8 +7,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/mistsys/go-tenable/tenable"
 	"github.com/mistsys/go-tenable/outputs"
+	"github.com/mistsys/go-tenable/tenable"
 )
 
 var (
@@ -25,7 +25,11 @@ var rootCmd = &cobra.Command{
 	Use:   "tenable COMMAND",
 	Short: "A CLI for the Tenable API",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		client = tenable.NewClient(viper.GetString("accesskey"), viper.GetString("secretkey"))
+		viper.AutomaticEnv()
+		viper.SetEnvPrefix("TENABLE")
+		accessKey := viper.GetString("accesskey")
+		secretKey := viper.GetString("secretkey")
+		client = tenable.NewClient(accessKey, secretKey)
 		// using viper means the cobra *Var flag options don't actually populate the global variables from config files
 		// if we have to manually set them anyway, we'll just manually set them
 		debug := viper.GetBool("debug")
@@ -34,17 +38,17 @@ var rootCmd = &cobra.Command{
 		client.QueryOpts = queryOpts
 
 		/*
-		var outputFd *os.File
-		var err error // ???
-		if outputFilename == "-" {
-			outputFd = os.Stdout
-		} else {
-			outputFd, err = outputs.NewFile(outputFilename)
-			if err != nil {
-				fmt.Println("Error creating output file:", err)
-				os.Exit(1)
+			var outputFd *os.File
+			var err error // ???
+			if outputFilename == "-" {
+				outputFd = os.Stdout
+			} else {
+				outputFd, err = outputs.NewFile(outputFilename)
+				if err != nil {
+					fmt.Println("Error creating output file:", err)
+					os.Exit(1)
+				}
 			}
-		}
 		*/
 
 		// TODO remove outputter entirely
