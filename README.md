@@ -9,13 +9,17 @@ accesskey: ${TENABLE_ACCESS_KEY}
 secretkey: ${TENABLE_SECRET_KEY}
 ```
 
+You can pass these are environment variables too 
+`TENABLE_ACCESS_KEY`
+`TENABLE_SECRET_KEY`
+
 # Usage
 ```
-$ tenable
+$ go-tenable
 A CLI for the Tenable API
 
 Usage:
-  tenable [command]
+  go-tenable [command]
 
 Available Commands:
   editor      Use the Tenable editor API
@@ -36,7 +40,7 @@ Flags:
   -s, --secretkey string     Tenable Secret Key (required)
   -v, --verbose              Verbose output
 
-Use "tenable [command] --help" for more information about a command.
+Use "go-tenable [command] --help" for more information about a command.
 ```
 
 Export results of a scan to JIRA tickets with `tenable scans export $scan_id --format jira -o tickets.csv`.
