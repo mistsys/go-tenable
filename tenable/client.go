@@ -181,6 +181,16 @@ func (t *Client) Post(ctx context.Context, u string, opts *QueryOpts, body io.Re
 	return resp, err
 }
 
+func (t *Client) Delete(ctx context.Context, u string, opts *QueryOpts, body io.Reader, dest interface{}) (*Response, error) {
+	// t.QueryOpts = opts // TODO
+	req, err := t.NewRequest(http.MethodDelete, u, body)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := t.Do(ctx, req, dest)
+	return resp, err
+}
+
 // odd authenticated duck that can be used for arbitrary gets, e.g., for export file downloads... yeah, it's a hack
 // this can get refactored into Get, or really into *Do*
 func (t *Client) PlainGet(ctx context.Context, u string) (*http.Response, error) {
@@ -188,8 +198,8 @@ func (t *Client) PlainGet(ctx context.Context, u string) (*http.Response, error)
 	if err != nil {
 		return nil, err
 	}
-    response, err := t.client.Do(req)
-    return response, err
+	response, err := t.client.Do(req)
+	return response, err
 }
 
 func (t *Client) SetHttpClient(client *http.Client) {

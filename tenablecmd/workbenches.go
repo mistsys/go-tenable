@@ -3,10 +3,15 @@ package tenablecmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/spf13/cobra"
+)
+
+var (
+	filterLastSeenDays = 1000
 )
 
 var workbenchesRootCmd = &cobra.Command{
@@ -147,8 +152,8 @@ var workbenchesVulnerabilitiesInfoCmd = &cobra.Command{
 	Short: "Get the vulnerability details for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		for i := 0; i < len(args); i++ {
-			_, response, err := client.Workbenches.VulnerabilitiesInfo(context.Background(), args[i])
+		for _, arg := range args {
+			_, response, err := client.Workbenches.VulnerabilitiesInfo(context.Background(), arg)
 			if err != nil {
 				fmt.Println("Error getting vulnerability info:", err)
 				os.Exit(1)
@@ -163,8 +168,8 @@ var workbenchesVulnerabilityOutputsCmd = &cobra.Command{
 	Short: "Get the vulnerability outputs for a single plugin.",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		for i := 0; i < len(args); i++ {
-			_, response, err := client.Workbenches.VulnerabilityOutputs(context.Background(), args[i])
+		for _, arg := range args {
+			_, response, err := client.Workbenches.VulnerabilityOutputs(context.Background(), arg)
 			if err != nil {
 				fmt.Println("Error getting vulnerability outputs:", err)
 				os.Exit(1)
@@ -240,18 +245,64 @@ var workbenchesExportCmd = &cobra.Command{
 	},
 }
 
+var workbenchesDeleteAssetCmd = &cobra.Command{
+	Use:   "delete-assets [assetUUids...]",
+	Short: "Delete asset(s) from the workbench",
+	Args:  cobra.MinimumNArgs(1),
+	Run: func(cmd *cobra.Command, assets []string) {
+		log.Printf("Deleting %d assets\n", len(assets))
+		for i, asset := range assets {
+			_, err := client.Workbenches.AssetDelete(context.Background(), asset)
+			if err != nil {
+				fmt.Printf("Failed to delete asset at index: %d, id: %s. Error: %s", i, asset, err)
+				os.Exit(1)
+			}
+
+			if (i+1)%100 == 0 {
+				log.Printf("Deleted %d assets\n", (i + 1))
+			}
+		}
+		log.Printf("Deleted %d assets\n", len(assets))
+	},
+}
+
+var workbenchesAssetFilterCmd = &cobra.Command{
+	Use:   "filter [assetUUids...]",
+	Short: "List asset(s) from the workbench based on some filter",
+	Run: func(cmd *cobra.Command, args []string) {
+		assets, _, err := client.Workbenches.Assets(context.Background())
+		if err != nil {
+			fmt.Printf("Failed to list assets. Err: %s", err)
+		}
+		for _, asset := range assets.Assets {
+			if asset.LastSeen.Before(time.Now().AddDate(0, 0, -1*filterLastSeenDays)) {
+				fmt.Println(asset.ID)
+			}
+		}
+	},
+}
+
 func init() {
 	rootCmd.AddCommand(workbenchesRootCmd)
 
 	workbenchesRootCmd.AddCommand(workbenchesAssetsRootCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsInfoCmd)
+
+	workbenchesAssetsFilterFlag := workbenchesAssetFilterCmd.PersistentFlags()
+	workbenchesAssetsFilterFlag.IntVarP(&filterLastSeenDays, "last-seen-days", "d", filterLastSeenDays, "Number of days since the asset was seen")
+
+	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetFilterCmd)
 	workbenchesAssetsRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesRootCmd)
+
+	workbenchesRootCmd.AddCommand(workbenchesDeleteAssetCmd)
+
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetsVulnerabilitiesListCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityInfoCmd)
 	workbenchesAssetsVulnerabilitiesRootCmd.AddCommand(workbenchesAssetVulnerabilityOutputsCmd)
 
 	workbenchesRootCmd.AddCommand(workbenchesVulnerabilitiesRootCmd)
+
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilitiesInfoCmd)
 	workbenchesVulnerabilitiesRootCmd.AddCommand(workbenchesVulnerabilityOutputsCmd)

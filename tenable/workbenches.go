@@ -313,6 +313,14 @@ func (s *WorkbenchesService) AssetsInfo(ctx context.Context, assetId string) (*A
 	return info, response, err
 }
 
+// Delete an asset from the workbench
+// This DELETE request in Tenable doesn't have a response body or request
+func (s *WorkbenchesService) AssetDelete(ctx context.Context, assetUUID string) (*Response, error) {
+	u := fmt.Sprintf("workbenches/assets/%s", assetUUID)
+	response, err := s.client.Delete(ctx, u, nil, nil, nil)
+	return response, err
+}
+
 // List up to the first 5000 vulnerabilities recorded for a single asset . NB this is not `AssetsVulnerabilities` (multiple assets)
 func (s *WorkbenchesService) AssetVulnerabilities(ctx context.Context, assetId string) (*AssetVulnerabilities, *Response, error) {
 	u := fmt.Sprintf("workbenches/assets/%s/vulnerabilities", assetId)
