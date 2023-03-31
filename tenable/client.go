@@ -98,8 +98,9 @@ func (t *Client) NewRequest(method string, relativeUrl string, body io.Reader) (
 	}
 
 	u.Path = path.Join(u.Path, relativeUrl)
-	rawQuery := kvToQuery(t.QueryOpts.Params)
-	u.RawQuery = rawQuery
+	if t.QueryOpts != nil {
+		u.RawQuery = kvToQuery(t.QueryOpts.Params)
+	}
 
 	req, err := http.NewRequest(method, u.String(), body)
 	if err != nil {

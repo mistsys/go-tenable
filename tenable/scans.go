@@ -25,7 +25,7 @@ type Scan struct {
     Read                 NumericBool `json:"read"`
     Rrules               string      `json:"rrules"`
     ScheduleUUID         string      `json:"schedule_uuid"`
-    Shared               bool        `json:"shared"`
+    Shared               NumericBool `json:"shared"`
     Starttime            string      `json:"starttime"`
     Status               string      `json:"status"`
     Timezone             string      `json:"timezone"`
