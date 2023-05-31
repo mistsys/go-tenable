@@ -129,7 +129,7 @@ type ScansCreateConfig struct {
 		Starttime   string        `yaml:"starttime,omitempty" json:"starttime,omitempty"`
 		RRules      string        `yaml:"rrules,omitempty" json:"rrules,omitempty"`
 		Timezone    string        `yaml:"timezone,omitempty" json:"timezone,omitempty"`
-		TextTargets string      `yaml:"text_targets,omitempty" json:"text_targets,omitempty"` // required
+		TextTargets string        `yaml:"text_targets,omitempty" json:"text_targets,omitempty"` // required
 		FileTargets string        `yaml:"file_targets,omitempty" json:"file_targets,omitempty"`
 		Emails      string        `yaml:"emails,omitempty" json:"emails,omitempty"`
 		ACLs        []interface{} `yaml:"acls,omitempty" json:"acls,omitempty"` // docs don't specify type
